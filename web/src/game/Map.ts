@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { AABB } from '../engine/Physics';
+import { createBrickTexture, createFloorTexture, createHallFloorTexture, createCeilingTexture } from './Textures';
 
 const WALL_HEIGHT = 10;
 const CELL_SIZE = 10;
@@ -69,11 +70,11 @@ export class SchoolMap {
   exitPositions: THREE.Vector3[] = [];
   playerSpawn = new THREE.Vector3(9 * CELL_SIZE, 4, 4 * CELL_SIZE);
 
-  private wallMaterial = new THREE.MeshLambertMaterial({ color: 0xc0c0b0 });
-  private floorMaterial = new THREE.MeshLambertMaterial({ color: 0x606858 });
-  private ceilingMaterial = new THREE.MeshLambertMaterial({ color: 0x707868 });
-  private hallFloorMaterial = new THREE.MeshLambertMaterial({ color: 0x8b7d5a });
-  private roomFloorMaterial = new THREE.MeshLambertMaterial({ color: 0x5a6b5a });
+  private wallMaterial = new THREE.MeshLambertMaterial({ map: createBrickTexture() });
+  private floorMaterial = new THREE.MeshLambertMaterial({ map: createFloorTexture() });
+  private ceilingMaterial = new THREE.MeshLambertMaterial({ map: createCeilingTexture() });
+  private hallFloorMaterial = new THREE.MeshLambertMaterial({ map: createHallFloorTexture() });
+  private roomFloorMaterial = new THREE.MeshLambertMaterial({ map: createFloorTexture() });
 
   constructor() {
     this.buildGeometry();

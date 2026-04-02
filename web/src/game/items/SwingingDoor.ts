@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { AABB } from '../../engine/Physics';
+import { createSwingDoorTexture } from '../Textures';
 
 export class SwingingDoor {
   position: THREE.Vector3;
@@ -12,9 +13,9 @@ export class SwingingDoor {
 
   private openTime = 0;
   private doorMesh: THREE.Mesh;
-  private openMaterial = new THREE.MeshLambertMaterial({ color: 0x228844, transparent: true, opacity: 0.3 });
-  private closedMaterial = new THREE.MeshLambertMaterial({ color: 0x228844 });
-  private lockedMaterial = new THREE.MeshLambertMaterial({ color: 0x882222 });
+  private openMaterial = new THREE.MeshLambertMaterial({ map: createSwingDoorTexture(false), transparent: true, opacity: 0.4 });
+  private closedMaterial = new THREE.MeshLambertMaterial({ map: createSwingDoorTexture(false) });
+  private lockedMaterial = new THREE.MeshLambertMaterial({ map: createSwingDoorTexture(true) });
 
   constructor(position: THREE.Vector3) {
     this.position = position.clone();

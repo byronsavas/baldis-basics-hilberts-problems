@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { AABB } from '../../engine/Physics';
+import { createDoorTexture } from '../Textures';
 
 export class Door {
   position: THREE.Vector3;
@@ -11,9 +12,9 @@ export class Door {
   barrierAABB: AABB;
 
   private openTime = 0;
-  private openMaterial = new THREE.MeshLambertMaterial({ color: 0x885522, transparent: true, opacity: 0.3 });
-  private closedMaterial = new THREE.MeshLambertMaterial({ color: 0x885522 });
-  private lockedMaterial = new THREE.MeshLambertMaterial({ color: 0xcc2222 });
+  private openMaterial = new THREE.MeshLambertMaterial({ map: createDoorTexture(true), transparent: true, opacity: 0.6 });
+  private closedMaterial = new THREE.MeshLambertMaterial({ map: createDoorTexture(false) });
+  private lockedMaterial = new THREE.MeshLambertMaterial({ map: createDoorTexture(false), color: 0xff6666 });
   private doorMesh: THREE.Mesh;
 
   constructor(position: THREE.Vector3) {
