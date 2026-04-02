@@ -1,0 +1,361 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow: hidden;
+  background: #000;
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
+  color: #fff;
+}
+
+#game-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+#ui-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.screen.active {
+  display: flex;
+  pointer-events: auto;
+}
+
+/* Warning screen */
+#warning-screen {
+  background: #000;
+}
+
+.warning-content {
+  text-align: center;
+}
+
+.warning-content h1 {
+  font-size: 48px;
+  color: #ff0;
+  margin-bottom: 20px;
+}
+
+.warning-content p {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Main menu */
+#main-menu {
+  background: linear-gradient(180deg, #1a5c1a 0%, #0d2e0d 100%);
+}
+
+.menu-content {
+  text-align: center;
+}
+
+.menu-content h1 {
+  font-size: 42px;
+  color: #ff0;
+  margin-bottom: 40px;
+  text-shadow: 2px 2px #000;
+}
+
+.menu-content h2 {
+  font-size: 36px;
+  color: #ff0;
+  margin-bottom: 20px;
+}
+
+.menu-content button {
+  display: block;
+  margin: 10px auto;
+  padding: 12px 40px;
+  font-size: 24px;
+  font-family: inherit;
+  background: #2a8c2a;
+  color: #fff;
+  border: 3px solid #ff0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menu-content button:hover {
+  background: #3cb03c;
+}
+
+/* HUD */
+#hud {
+  pointer-events: none;
+}
+
+#hud.active {
+  pointer-events: none;
+}
+
+#hud-top {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+#notebook-count {
+  font-size: 20px;
+  color: #ff0;
+  text-shadow: 1px 1px #000;
+}
+
+#stamina-container {
+  width: 200px;
+  height: 16px;
+  background: #333;
+  border: 2px solid #fff;
+  border-radius: 2px;
+}
+
+#stamina-bar {
+  width: 100%;
+  height: 100%;
+  background: #0f0;
+  transition: width 0.1s;
+}
+
+#hud-bottom {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+#item-slots {
+  display: flex;
+  gap: 4px;
+}
+
+.item-slot {
+  width: 52px;
+  height: 52px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #ccc;
+}
+
+.item-slot.selected {
+  border-color: #ff0;
+}
+
+#item-name {
+  font-size: 14px;
+  color: #ff0;
+  text-shadow: 1px 1px #000;
+}
+
+#reticle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 1px 1px #000;
+  pointer-events: none;
+}
+
+#warning-text {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  color: #f00;
+  text-shadow: 1px 1px #000;
+  animation: blink 0.5s step-end infinite;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Math game */
+#math-game {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+#math-content {
+  background: #1a4a1a;
+  border: 4px solid #ff0;
+  padding: 30px 50px;
+  text-align: center;
+  min-width: 400px;
+}
+
+#baldi-face {
+  width: 120px;
+  height: 120px;
+  background: #8B6914;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  position: relative;
+}
+
+#baldi-face::after {
+  content: '😐';
+  font-size: 80px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#math-problem {
+  font-size: 36px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+#math-answer {
+  width: 120px;
+  font-size: 28px;
+  text-align: center;
+  font-family: inherit;
+  border: 2px solid #ff0;
+  background: #000;
+  color: #fff;
+  padding: 4px;
+}
+
+#math-ok {
+  padding: 8px 30px;
+  font-size: 20px;
+  font-family: inherit;
+  background: #2a8c2a;
+  color: #fff;
+  border: 2px solid #ff0;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+#math-ok:hover {
+  background: #3cb03c;
+}
+
+#math-results {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.result-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #555;
+  display: inline-block;
+}
+
+.result-dot.correct {
+  background: #0f0;
+}
+
+.result-dot.incorrect {
+  background: #f00;
+}
+
+#math-problem-count {
+  font-size: 14px;
+  color: #ccc;
+}
+
+/* Jump rope */
+#jump-rope {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+#jump-rope-content {
+  text-align: center;
+}
+
+#jump-count {
+  font-size: 48px;
+  color: #ff0;
+}
+
+#rope-visual {
+  font-size: 36px;
+  color: #f00;
+  margin-top: 20px;
+}
+
+/* Pause */
+#pause-menu {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Game over */
+#game-over-screen {
+  background: #000;
+}
+
+#game-over-content {
+  text-align: center;
+}
+
+#game-over-image {
+  width: 400px;
+  height: 300px;
+  background: #333;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+}
+
+/* Results */
+#results-screen {
+  background: linear-gradient(180deg, #1a1a5c 0%, #0d0d2e 100%);
+}

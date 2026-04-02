@@ -1,0 +1,36 @@
+import * as THREE from 'three';
+import { gameLoop } from './engine/GameLoop';
+import { inputManager } from './engine/InputManager';
+import { sceneManager } from './engine/SceneManager';
+import { WarningScene } from './scenes/WarningScene';
+import { MainMenuScene } from './scenes/MainMenuScene';
+import { SchoolScene } from './scenes/SchoolScene';
+import { GameOverScene } from './scenes/GameOverScene';
+import { ResultsScene } from './scenes/ResultsScene';
+
+const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+window.addEventListener('resize', () => {
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+inputManager.init(canvas);
+
+sceneManager.register(new WarningScene());
+sceneManager.register(new MainMenuScene());
+sceneManager.register(new SchoolScene('story', renderer));
+sceneManager.register(new SchoolScene('endless', renderer));
+sceneManager.register(new GameOverScene());
+sceneManager.register(new ResultsScene());
+
+gameLoop.onUpdate((dt) => {
+  sceneManager.update(dt);
+  inputManager.endFrame();
+});
+
+sceneManager.loadScene('warning');
+gameLoop.start();

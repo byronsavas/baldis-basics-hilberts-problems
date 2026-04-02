@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Baldi's Basics Classic</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="game-canvas"></canvas>
+
+    <!-- UI overlay layer -->
+    <div id="ui-overlay">
+      <!-- Warning screen -->
+      <div id="warning-screen" class="screen active">
+        <div class="warning-content">
+          <h1>WARNING</h1>
+          <p>This game has some loud sounds. Play at your own risk.</p>
+          <p class="blink">Press any key to continue</p>
+        </div>
+      </div>
+
+      <!-- Main menu -->
+      <div id="main-menu" class="screen">
+        <div class="menu-content">
+          <h1>Baldi's Basics<br>in Education and Learning</h1>
+          <button id="btn-story">Story Mode</button>
+          <button id="btn-endless">Endless Mode</button>
+        </div>
+      </div>
+
+      <!-- HUD -->
+      <div id="hud" class="screen">
+        <div id="hud-top">
+          <div id="notebook-count">Notebooks: 0/7</div>
+          <div id="stamina-container">
+            <div id="stamina-bar"></div>
+          </div>
+        </div>
+        <div id="hud-bottom">
+          <div id="item-slots">
+            <div class="item-slot selected" data-slot="0"></div>
+            <div class="item-slot" data-slot="1"></div>
+            <div class="item-slot" data-slot="2"></div>
+          </div>
+          <div id="item-name"></div>
+        </div>
+        <div id="reticle">+</div>
+        <div id="warning-text" class="hidden">You're running low on stamina!</div>
+      </div>
+
+      <!-- Math game overlay -->
+      <div id="math-game" class="screen">
+        <div id="math-content">
+          <div id="baldi-face"></div>
+          <div id="math-problem">
+            <span id="math-num1"></span>
+            <span id="math-sign"></span>
+            <span id="math-num2"></span>
+            <span id="math-equals">=</span>
+            <input id="math-answer" type="text" autocomplete="off" />
+          </div>
+          <button id="math-ok">OK</button>
+          <div id="math-results">
+            <span class="result-dot" data-idx="0"></span>
+            <span class="result-dot" data-idx="1"></span>
+            <span class="result-dot" data-idx="2"></span>
+          </div>
+          <div id="math-problem-count">Problem 1 of 3</div>
+        </div>
+      </div>
+
+      <!-- Jump rope minigame -->
+      <div id="jump-rope" class="screen">
+        <div id="jump-rope-content">
+          <div id="jump-count">0/5</div>
+          <div id="rope-visual">JUMP!</div>
+        </div>
+      </div>
+
+      <!-- Pause menu -->
+      <div id="pause-menu" class="screen">
+        <div class="menu-content">
+          <h2>PAUSED</h2>
+          <button id="btn-continue">Continue</button>
+          <button id="btn-quit">Quit to Menu</button>
+        </div>
+      </div>
+
+      <!-- Game over -->
+      <div id="game-over-screen" class="screen">
+        <div id="game-over-content">
+          <div id="game-over-image"></div>
+        </div>
+      </div>
+
+      <!-- Results / You Won -->
+      <div id="results-screen" class="screen">
+        <div class="menu-content">
+          <h1>Congratulations! You won!</h1>
+          <p id="results-score"></p>
+          <button id="btn-main-menu">Main Menu</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
