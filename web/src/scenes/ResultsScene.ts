@@ -1,6 +1,7 @@
 import type { GameScene } from '../engine/SceneManager';
 import { sceneManager } from '../engine/SceneManager';
 import { inputManager } from '../engine/InputManager';
+import { SFXPlayer } from '../game/MusicGenerator';
 
 export class ResultsScene implements GameScene {
   name = 'results';
@@ -9,6 +10,7 @@ export class ResultsScene implements GameScene {
     const el = document.getElementById('results-screen')!;
     el.classList.add('active');
     inputManager.unlockPointer();
+    SFXPlayer.playWin();
 
     const mode = localStorage.getItem('CurrentMode') || 'story';
     const scoreEl = document.getElementById('results-score')!;

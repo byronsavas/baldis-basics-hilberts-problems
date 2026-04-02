@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { NpcBase } from './NpcBase';
 import type { Player } from '../Player';
+import { SFXPlayer } from '../MusicGenerator';
 
 export class Playtime extends NpcBase {
   playerSeen = false;
@@ -44,6 +45,7 @@ export class Playtime extends NpcBase {
       if (dist < 4 && player && !player.jumpRope) {
         player.activateJumpRope();
         this.jumpRopeStarted = true;
+        SFXPlayer.play('/audio/Mus_Playtime.wav', 0.5);
       }
     } else {
       this.playerSeen = false;

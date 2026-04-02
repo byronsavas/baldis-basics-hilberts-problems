@@ -1,5 +1,6 @@
 import type { GameScene } from '../engine/SceneManager';
 import { sceneManager } from '../engine/SceneManager';
+import { SFXPlayer } from '../game/MusicGenerator';
 
 const GAME_OVER_MESSAGES = [
   '😵 You were caught!',
@@ -17,6 +18,7 @@ export class GameOverScene implements GameScene {
   onEnter() {
     const el = document.getElementById('game-over-screen')!;
     el.classList.add('active');
+    SFXPlayer.playHang();
 
     this.delay = 5;
     this.rare = Math.random() * 100 > 98;

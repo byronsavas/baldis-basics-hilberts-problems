@@ -25,7 +25,7 @@ import { HUD } from './ui/HUD';
 import { MathGameUI } from './ui/MathGame';
 import { PauseMenuUI } from './ui/PauseMenu';
 import { JumpRopeUI } from './ui/JumpRope';
-import { MusicPlayer, SpookyMusic } from './MusicGenerator';
+import { MusicPlayer, SpookyMusic, SFXPlayer } from './MusicGenerator';
 
 export class GameController {
   scene = new THREE.Scene();
@@ -423,9 +423,11 @@ export class GameController {
     // Open math game
     this.learningActive = true;
     const impossibleMode = this.spoopMode;
+    SFXPlayer.playLearnMusic();
     this.mathGameUI.open(impossibleMode, {
-      onCorrect: () => {},
+      onCorrect: () => { SFXPlayer.playCorrectAnswer(); },
       onWrong: (problemIndex: number) => {
+        SFXPlayer.playWrongAnswer();
         if (!this.spoopMode) {
           this.activateSpoopMode();
         }
@@ -465,7 +467,7 @@ export class GameController {
     if (this.spoopMode) return;
     this.spoopMode = true;
 
-    // Switch music
+    SFXPlayer.playEvent();
     this.schoolMusic.stop();
     this.spookyMusic.start();
 
@@ -648,7 +650,7 @@ export class GameController {
         if (checkTrigger(this.player.position, exitPos, 8)) {
           this.exitsReached++;
           if (this.exitsReached >= 3) {
-            // Win!
+            SFXPlayer.playWin();
             if (this.failedNotebooks >= 7) {
               sceneManager.loadScene('secret');
             } else {
