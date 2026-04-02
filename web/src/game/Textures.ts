@@ -18,11 +18,11 @@ export function createBrickTexture(): THREE.Texture {
 }
 
 export function createFloorTexture(): THREE.Texture {
-  return loadTex('/textures/TileFloor.png', 1, 1);
+  return loadTex('/textures/Carpet.png', 1, 1);
 }
 
 export function createHallFloorTexture(): THREE.Texture {
-  return loadTex('/textures/Carpet.png', 1, 1);
+  return loadTex('/textures/TileFloor.png', 1, 1);
 }
 
 export function createCeilingTexture(): THREE.Texture {

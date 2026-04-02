@@ -15,7 +15,7 @@ export class Crafters extends NpcBase {
   private forceShowTime = 0;
 
   constructor() {
-    super(0x884488, 5, 2);
+    super('/textures/characters/Crafters.png', 7);
     this.mesh.visible = false;
   }
 
@@ -39,8 +39,7 @@ export class Crafters extends NpcBase {
         if (this.anger >= 1) {
           this.angry = true;
           this.mesh.visible = true;
-          // Change color to red when angry
-          (this.bodyMesh.material as THREE.MeshLambertMaterial).color.set(0xff0000);
+          this.spriteMaterial.color.set(0xff4444);
         }
       }
 

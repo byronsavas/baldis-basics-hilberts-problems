@@ -12,27 +12,37 @@ export class Door {
   barrierAABB: AABB;
 
   private openTime = 0;
-  private openMaterial = new THREE.MeshLambertMaterial({ map: createDoorTexture(true), transparent: true, opacity: 0.6 });
-  private closedMaterial = new THREE.MeshLambertMaterial({ map: createDoorTexture(false) });
-  private lockedMaterial = new THREE.MeshLambertMaterial({ map: createDoorTexture(false), color: 0xff6666 });
+  private openMaterial = new THREE.MeshLambertMaterial({ map: createDoorTexture(true), transparent: true, opacity: 0.6, side: THREE.DoubleSide });
+  private closedMaterial = new THREE.MeshLambertMaterial({ map: createDoorTexture(false), side: THREE.DoubleSide });
+  private lockedMaterial = new THREE.MeshLambertMaterial({ map: createDoorTexture(false), color: 0xff6666, side: THREE.DoubleSide });
   private doorMesh: THREE.Mesh;
 
-  constructor(position: THREE.Vector3) {
+  constructor(position: THREE.Vector3, horizontal = true) {
     this.position = position.clone();
     this.mesh = new THREE.Group();
 
-    const geo = new THREE.BoxGeometry(1, 8, 8);
+    const geo = new THREE.PlaneGeometry(8, 10);
     this.doorMesh = new THREE.Mesh(geo, this.closedMaterial);
-    this.doorMesh.position.y = 4;
+    this.doorMesh.position.y = 5;
+    if (!horizontal) {
+      this.doorMesh.rotation.y = Math.PI / 2;
+    }
     this.mesh.add(this.doorMesh);
 
     this.mesh.position.copy(this.position);
     this.mesh.name = 'Door';
 
-    this.barrierAABB = {
-      min: new THREE.Vector3(position.x - 0.5, 0, position.z - 4),
-      max: new THREE.Vector3(position.x + 0.5, 8, position.z + 4),
-    };
+    if (horizontal) {
+      this.barrierAABB = {
+        min: new THREE.Vector3(position.x - 4, 0, position.z - 0.5),
+        max: new THREE.Vector3(position.x + 4, 10, position.z + 0.5),
+      };
+    } else {
+      this.barrierAABB = {
+        min: new THREE.Vector3(position.x - 0.5, 0, position.z - 4),
+        max: new THREE.Vector3(position.x + 0.5, 10, position.z + 4),
+      };
+    }
   }
 
   update(dt: number) {

@@ -123,11 +123,11 @@ export class GameController {
     // Create doors
     for (const doorDef of this.map.doorPositions) {
       if (doorDef.isSwinging) {
-        const sd = new SwingingDoor(doorDef.pos);
+        const sd = new SwingingDoor(doorDef.pos, doorDef.horizontal);
         this.swingingDoors.push(sd);
         this.scene.add(sd.mesh);
       } else {
-        const d = new Door(doorDef.pos);
+        const d = new Door(doorDef.pos, doorDef.horizontal);
         this.doors.push(d);
         this.scene.add(d.mesh);
       }
@@ -171,13 +171,13 @@ export class GameController {
 
   private setupNPCs() {
     // Baldi starts at the school entrance area
-    this.baldi.position.set(90, 4, 20);
+    this.baldi.position.set(90, 0, 20);
     this.baldi.active = false; // Activated after first notebook
     this.scene.add(this.baldi.mesh);
     this.baldi.syncMesh();
 
     // Principal
-    this.principal.position.set(50, 4, 90);
+    this.principal.position.set(50, 0, 90);
     this.principal.setOffice(
       new THREE.Vector3(20, 4, 20),
       new THREE.Vector3(18, 4, 20),
@@ -187,13 +187,13 @@ export class GameController {
     this.principal.syncMesh();
 
     // Playtime
-    this.playtime.position.set(130, 4, 90);
+    this.playtime.position.set(130, 0, 90);
     this.playtime.active = false;
     this.scene.add(this.playtime.mesh);
     this.playtime.syncMesh();
 
     // First Prize
-    this.firstPrize.position.set(50, 4, 140);
+    this.firstPrize.position.set(50, 0, 140);
     this.firstPrize.active = false;
     this.scene.add(this.firstPrize.mesh);
     this.firstPrize.syncMesh();
@@ -202,14 +202,14 @@ export class GameController {
     this.scene.add(this.bully.mesh);
 
     // Crafters
-    this.crafters.position.set(140, 4, 140);
-    this.crafters.baldiTeleportPoint.set(90, 4, 20);
-    this.crafters.playerTeleportPoint.set(90, 4, 40);
+    this.crafters.position.set(140, 0, 140);
+    this.crafters.baldiTeleportPoint.set(90, 0, 20);
+    this.crafters.playerTeleportPoint.set(90, 0, 40);
     this.scene.add(this.crafters.mesh);
     this.crafters.syncMesh();
 
     // Gotta Sweep
-    this.gottaSweep.setOrigin(new THREE.Vector3(90, 4, 90));
+    this.gottaSweep.setOrigin(new THREE.Vector3(90, 0, 90));
     this.scene.add(this.gottaSweep.mesh);
     this.gottaSweep.syncMesh();
   }
@@ -314,6 +314,16 @@ export class GameController {
     this.bully.update(dt, pp);
     this.crafters.update(dt, pp, this.notebookCount, this.player, this.baldi);
     this.gottaSweep.update(dt, pp, this.player);
+
+    // Billboard all NPC sprites to face the camera
+    const cam = this.camera.camera;
+    this.baldi.billboardToCamera(cam);
+    this.principal.billboardToCamera(cam);
+    this.playtime.billboardToCamera(cam);
+    this.firstPrize.billboardToCamera(cam);
+    this.bully.billboardToCamera(cam);
+    this.crafters.billboardToCamera(cam);
+    this.gottaSweep.billboardToCamera(cam);
 
     // Update notebooks
     for (const nb of this.notebooks) {
@@ -423,6 +433,8 @@ export class GameController {
     // Open math game
     this.learningActive = true;
     const impossibleMode = this.spoopMode;
+    this.schoolMusic.suspend();
+    this.spookyMusic.suspend();
     SFXPlayer.playLearnMusic();
     this.mathGameUI.open(impossibleMode, {
       onCorrect: () => { SFXPlayer.playCorrectAnswer(); },
@@ -448,6 +460,8 @@ export class GameController {
     this.learningActive = false;
     gameLoop.setTimeScale(1);
     inputManager.lockPointer();
+    this.schoolMusic.resume();
+    this.spookyMusic.resume();
 
     // Refill stamina
     this.player.stamina = this.player.maxStamina;

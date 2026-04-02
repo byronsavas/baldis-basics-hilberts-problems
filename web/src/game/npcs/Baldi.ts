@@ -24,7 +24,7 @@ export class Baldi extends NpcBase {
   private slapSpeed = 80;
 
   constructor() {
-    super(0xcc9966, 6, 2.5);
+    super('/textures/characters/Baldi.png', 8);
   }
 
   update(dt: number, playerPos: THREE.Vector3) {

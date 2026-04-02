@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { pathfinder } from '../Pathfinding';
 
+const textureLoader = new THREE.TextureLoader();
+
 export class Bully {
   position = new THREE.Vector3();
   active = false;
@@ -10,17 +12,32 @@ export class Bully {
   mesh: THREE.Group;
   private waitTime = 0;
   private activeTime = 0;
-  private bodyMesh: THREE.Mesh;
+  private spriteMesh: THREE.Mesh;
 
   constructor() {
     this.mesh = new THREE.Group();
-    const geo = new THREE.BoxGeometry(2.5, 5, 2.5);
-    const mat = new THREE.MeshLambertMaterial({ color: 0xdd8844 });
-    this.bodyMesh = new THREE.Mesh(geo, mat);
-    this.bodyMesh.position.y = 2.5;
-    this.mesh.add(this.bodyMesh);
+
+    const tex = textureLoader.load('/textures/characters/Bully.png');
+    tex.magFilter = THREE.NearestFilter;
+    tex.minFilter = THREE.NearestFilter;
+    tex.colorSpace = THREE.SRGBColorSpace;
+
+    const mat = new THREE.MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      alphaTest: 0.1,
+      side: THREE.DoubleSide,
+    });
+    const geo = new THREE.PlaneGeometry(5, 7);
+    this.spriteMesh = new THREE.Mesh(geo, mat);
+    this.spriteMesh.position.y = 3.5;
+    this.mesh.add(this.spriteMesh);
     this.mesh.visible = false;
     this.reset();
+  }
+
+  billboardToCamera(camera: THREE.Camera) {
+    this.spriteMesh.quaternion.copy(camera.quaternion);
   }
 
   update(dt: number, playerPos: THREE.Vector3) {

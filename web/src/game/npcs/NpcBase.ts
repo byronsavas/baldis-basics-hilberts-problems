@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { pathfinder } from '../Pathfinding';
 
+const textureLoader = new THREE.TextureLoader();
+
 export abstract class NpcBase {
   position = new THREE.Vector3();
   speed = 0;
@@ -12,15 +14,34 @@ export abstract class NpcBase {
   protected coolDown = 0;
 
   mesh: THREE.Group;
-  protected bodyMesh: THREE.Mesh;
+  protected spriteMesh: THREE.Mesh;
+  protected spriteMaterial: THREE.MeshBasicMaterial;
 
-  constructor(color: number, height = 6, width = 2) {
+  constructor(spritePath: string, spriteHeight = 8, spriteWidth?: number) {
     this.mesh = new THREE.Group();
-    const geo = new THREE.BoxGeometry(width, height, width);
-    const mat = new THREE.MeshLambertMaterial({ color });
-    this.bodyMesh = new THREE.Mesh(geo, mat);
-    this.bodyMesh.position.y = height / 2;
-    this.mesh.add(this.bodyMesh);
+
+    const tex = textureLoader.load(spritePath);
+    tex.magFilter = THREE.NearestFilter;
+    tex.minFilter = THREE.NearestFilter;
+    tex.colorSpace = THREE.SRGBColorSpace;
+
+    this.spriteMaterial = new THREE.MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      alphaTest: 0.1,
+      side: THREE.DoubleSide,
+    });
+
+    const w = spriteWidth ?? spriteHeight * 0.6;
+    const geo = new THREE.PlaneGeometry(w, spriteHeight);
+    this.spriteMesh = new THREE.Mesh(geo, this.spriteMaterial);
+    this.spriteMesh.position.y = spriteHeight / 2;
+    this.mesh.add(this.spriteMesh);
+  }
+
+  /** Call each frame so the sprite always faces the camera */
+  billboardToCamera(camera: THREE.Camera) {
+    this.spriteMesh.quaternion.copy(camera.quaternion);
   }
 
   setDestination(target: THREE.Vector3) {
@@ -55,9 +76,6 @@ export abstract class NpcBase {
     const moveAmount = Math.min(this.speed * dt, dist);
     this.position.add(direction.multiplyScalar(moveAmount));
     this.mesh.position.copy(this.position);
-
-    // Face movement direction
-    this.mesh.rotation.y = Math.atan2(direction.x, direction.z);
   }
 
   protected wander() {

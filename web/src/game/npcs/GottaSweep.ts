@@ -9,7 +9,7 @@ export class GottaSweep extends NpcBase {
   private origin = new THREE.Vector3();
 
   constructor() {
-    super(0x228822, 7, 2);
+    super('/textures/characters/GottaSweep.png', 9);
     this.mesh.visible = false;
     this.resetSweep();
   }

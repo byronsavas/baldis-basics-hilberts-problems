@@ -14,7 +14,7 @@ export class FirstPrize extends NpcBase {
   private targetRotation = 0;
 
   constructor() {
-    super(0xaaaaaa, 5, 3);
+    super('/textures/characters/FirstPrize.png', 7, 5);
   }
 
   update(dt: number, playerPos: THREE.Vector3, player?: Player) {

@@ -65,7 +65,7 @@ export class SchoolMap {
   wallAABBs: AABB[] = [];
   floorMeshes: THREE.Mesh[] = [];
   waypoints: WaypointDef[] = [];
-  doorPositions: { pos: THREE.Vector3; isSwinging: boolean }[] = [];
+  doorPositions: { pos: THREE.Vector3; isSwinging: boolean; horizontal: boolean }[] = [];
   notebookPositions: THREE.Vector3[] = [];
   exitPositions: THREE.Vector3[] = [];
   playerSpawn = new THREE.Vector3(9 * CELL_SIZE, 4, 4 * CELL_SIZE);
@@ -99,7 +99,7 @@ export class SchoolMap {
   gridToWorld(row: number, col: number): THREE.Vector3 {
     return new THREE.Vector3(
       col * CELL_SIZE + CELL_SIZE / 2,
-      4,
+      0,
       row * CELL_SIZE + CELL_SIZE / 2,
     );
   }
@@ -247,25 +247,25 @@ export class SchoolMap {
   }
 
   private placeDoors() {
-    // Doors at room entrances along hallways
     const doorCells = [
-      // Doors between rooms and vertical hallways
-      { row: 1, col: 4, swing: false }, { row: 3, col: 4, swing: false },
-      { row: 5, col: 4, swing: false }, { row: 7, col: 4, swing: false },
-      { row: 1, col: 14, swing: false }, { row: 3, col: 14, swing: false },
-      { row: 5, col: 14, swing: false }, { row: 7, col: 14, swing: false },
-      { row: 11, col: 4, swing: false }, { row: 13, col: 4, swing: false },
-      { row: 15, col: 4, swing: false }, { row: 17, col: 4, swing: false },
-      { row: 11, col: 14, swing: false }, { row: 13, col: 14, swing: false },
-      { row: 15, col: 14, swing: false }, { row: 17, col: 14, swing: false },
-      // Swinging doors at major intersections
-      { row: 4, col: 8, swing: true }, { row: 4, col: 10, swing: true },
-      { row: 14, col: 8, swing: true }, { row: 14, col: 10, swing: true },
+      // Doors between rooms and vertical hallways (face along Z — horizontal plane)
+      { row: 1, col: 4, swing: false, horiz: true }, { row: 3, col: 4, swing: false, horiz: true },
+      { row: 5, col: 4, swing: false, horiz: true }, { row: 7, col: 4, swing: false, horiz: true },
+      { row: 1, col: 14, swing: false, horiz: true }, { row: 3, col: 14, swing: false, horiz: true },
+      { row: 5, col: 14, swing: false, horiz: true }, { row: 7, col: 14, swing: false, horiz: true },
+      { row: 11, col: 4, swing: false, horiz: true }, { row: 13, col: 4, swing: false, horiz: true },
+      { row: 15, col: 4, swing: false, horiz: true }, { row: 17, col: 4, swing: false, horiz: true },
+      { row: 11, col: 14, swing: false, horiz: true }, { row: 13, col: 14, swing: false, horiz: true },
+      { row: 15, col: 14, swing: false, horiz: true }, { row: 17, col: 14, swing: false, horiz: true },
+      // Swinging doors at major intersections (face along X — vertical plane)
+      { row: 4, col: 8, swing: true, horiz: false }, { row: 4, col: 10, swing: true, horiz: false },
+      { row: 14, col: 8, swing: true, horiz: false }, { row: 14, col: 10, swing: true, horiz: false },
     ];
     for (const d of doorCells) {
       this.doorPositions.push({
         pos: this.gridToWorld(d.row, d.col),
         isSwinging: d.swing,
+        horizontal: d.horiz,
       });
     }
   }

@@ -18,7 +18,7 @@ export class Principal extends NpcBase {
   private whistleCooldown = 0;
 
   constructor() {
-    super(0x4444bb, 6, 2);
+    super('/textures/characters/Principal.png', 8);
   }
 
   setOffice(pos: THREE.Vector3, detentionPt: THREE.Vector3, playerDetentionPt: THREE.Vector3) {

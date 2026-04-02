@@ -10,7 +10,7 @@ export class Playtime extends NpcBase {
   playCool = 0;
 
   constructor() {
-    super(0xff69b4, 5.5, 1.8);
+    super('/textures/characters/Playtime.png', 8);
   }
 
   update(dt: number, playerPos: THREE.Vector3, player?: Player) {
