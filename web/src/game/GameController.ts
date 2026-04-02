@@ -25,6 +25,7 @@ import { HUD } from './ui/HUD';
 import { MathGameUI } from './ui/MathGame';
 import { PauseMenuUI } from './ui/PauseMenu';
 import { JumpRopeUI } from './ui/JumpRope';
+import { MusicPlayer, SpookyMusic } from './MusicGenerator';
 
 export class GameController {
   scene = new THREE.Scene();
@@ -67,6 +68,8 @@ export class GameController {
   gameOverDelay = 0.5;
 
   private itemPickups: THREE.Mesh[] = [];
+  private schoolMusic: MusicPlayer;
+  private spookyMusic: SpookyMusic;
 
   constructor() {
     this.map = new SchoolMap();
@@ -82,6 +85,10 @@ export class GameController {
     this.bully = new Bully();
     this.crafters = new Crafters();
     this.gottaSweep = new GottaSweep();
+
+    // Music
+    this.schoolMusic = new MusicPlayer();
+    this.spookyMusic = new SpookyMusic();
 
     // UI
     this.hud = new HUD();
@@ -157,8 +164,9 @@ export class GameController {
     // Lock mouse
     inputManager.lockPointer();
 
-    // Resume audio context (requires user gesture)
+    // Resume audio context and start school music
     audioManager.resume();
+    this.schoolMusic.start();
   }
 
   private setupNPCs() {
@@ -457,6 +465,10 @@ export class GameController {
     if (this.spoopMode) return;
     this.spoopMode = true;
 
+    // Switch music
+    this.schoolMusic.stop();
+    this.spookyMusic.start();
+
     // Change scene atmosphere
     this.scene.background = new THREE.Color(0x220000);
     this.scene.fog = new THREE.Fog(0x220000, 50, 200);
@@ -671,6 +683,8 @@ export class GameController {
     this.gamePaused = true;
     gameLoop.setTimeScale(0);
     this.pauseMenuUI.show();
+    this.schoolMusic.suspend();
+    this.spookyMusic.suspend();
     inputManager.unlockPointer();
   }
 
@@ -678,6 +692,8 @@ export class GameController {
     this.gamePaused = false;
     gameLoop.setTimeScale(1);
     this.pauseMenuUI.hide();
+    this.schoolMusic.resume();
+    this.spookyMusic.resume();
     inputManager.lockPointer();
   }
 
@@ -690,6 +706,8 @@ export class GameController {
   }
 
   dispose() {
+    this.schoolMusic.stop();
+    this.spookyMusic.stop();
     this.hud.hide();
     this.pauseMenuUI.hide();
     this.mathGameUI.close();
