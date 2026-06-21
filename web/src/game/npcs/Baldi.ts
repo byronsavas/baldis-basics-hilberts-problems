@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { NpcBase } from './NpcBase';
 
-const WAVE_FRAME_COUNT = 100;
-const WAVE_FPS = 24;
+const SPRITE_HEIGHT = 8;
+const SPRITE_WIDTH = SPRITE_HEIGHT * (262 / 901);
 
 export class Baldi extends NpcBase {
   baseTime = 2.5;
@@ -26,37 +26,14 @@ export class Baldi extends NpcBase {
   private previous = new THREE.Vector3();
   private slapSpeed = 80;
 
-  private waving = true;
-  private waveFrames: THREE.Texture[] = [];
-  private waveTime = 0;
-  private idleTexture: THREE.Texture;
-
   constructor() {
-    super('/textures/characters/Baldi.png', 8);
-    this.idleTexture = this.spriteMaterial.map!;
-
-    const loader = new THREE.TextureLoader();
-    for (let i = 0; i < WAVE_FRAME_COUNT; i++) {
-      const idx = String(i).padStart(4, '0');
-      const tex = loader.load(`/textures/characters/baldi-wave/Baldi_Wave${idx}.png`);
-      tex.magFilter = THREE.NearestFilter;
-      tex.minFilter = THREE.NearestFilter;
-      tex.colorSpace = THREE.SRGBColorSpace;
-      this.waveFrames.push(tex);
-    }
+    super('/textures/characters/Hilbert.png', SPRITE_HEIGHT, SPRITE_WIDTH);
   }
 
   update(dt: number, playerPos: THREE.Vector3) {
     if (!this.active) {
-      if (this.waving) {
-        this.updateWaveAnimation(dt);
-        this.syncMesh();
-      }
+      this.syncMesh();
       return;
-    }
-
-    if (this.waving) {
-      this.stopWaving();
     }
 
     if (this.timeToMove > 0) {
@@ -111,19 +88,6 @@ export class Baldi extends NpcBase {
     }
 
     this.syncMesh();
-  }
-
-  private updateWaveAnimation(dt: number) {
-    this.waveTime += dt;
-    const frameIndex = Math.floor(this.waveTime * WAVE_FPS) % WAVE_FRAME_COUNT;
-    this.spriteMaterial.map = this.waveFrames[frameIndex];
-    this.spriteMaterial.needsUpdate = true;
-  }
-
-  private stopWaving() {
-    this.waving = false;
-    this.spriteMaterial.map = this.idleTexture;
-    this.spriteMaterial.needsUpdate = true;
   }
 
   private move() {
