@@ -2,11 +2,14 @@ import * as THREE from 'three';
 import { NpcBase } from './NpcBase';
 import type { Player } from '../Player';
 import { SFXPlayer } from '../MusicGenerator';
+import { checkTrigger } from '../../engine/Physics';
+
+const JUMP_ROPE_DISTANCE = 8;
+const ENGAGE_COOLDOWN = 15;
 
 export class Playtime extends NpcBase {
   playerSeen = false;
   disappointed = false;
-  jumpRopeStarted = false;
   playCool = 0;
 
   constructor() {
@@ -19,33 +22,28 @@ export class Playtime extends NpcBase {
     this.coolDown -= dt;
     this.playCool -= dt;
 
-    const dist = this.position.distanceTo(playerPos);
-
     if (player?.jumpRope) {
-      // Back off during jump rope
-      if (this.jumpRopeStarted) {
-        const backDir = this.position.clone().sub(playerPos).normalize();
-        this.applyMove(backDir.multiplyScalar(10));
-        this.speed = 0;
-        this.playCool = 15;
-        this.jumpRopeStarted = false;
-      }
+      this.maintainInFrontOfPlayer(player);
       this.syncMesh();
       return;
     }
 
+    const inChaseRange = checkTrigger(this.position, playerPos, 80);
+    const caught = checkTrigger(this.position, playerPos, 5);
+
     // Chase or wander
-    if (dist < 80 && this.playCool <= 0 && !this.disappointed) {
+    if (inChaseRange && this.playCool <= 0 && !this.disappointed) {
       this.playerSeen = true;
       this.speed = 20;
       this.setDestination(playerPos);
       this.moveAlongPath(dt);
 
-      // Catch player
-      if (dist < 4 && player && !player.jumpRope) {
+      // Catch player (XZ distance — player eye height must not block the check)
+      if (caught && player && !player.jumpRope) {
         player.activateJumpRope();
-        this.jumpRopeStarted = true;
-        SFXPlayer.play('/audio/Mus_Playtime.wav', 0.5);
+        player.faceToward(this.position.x, this.position.z);
+        this.snapInFrontOfPlayer(player);
+        SFXPlayer.playPlaytimeMusic(0.5);
       }
     } else {
       this.playerSeen = false;
@@ -59,7 +57,35 @@ export class Playtime extends NpcBase {
     this.syncMesh();
   }
 
+  private positionInFrontOf(player: Player, target: THREE.Vector3) {
+    const forward = player.getForward();
+    target.set(
+      player.position.x + forward.x * JUMP_ROPE_DISTANCE,
+      0,
+      player.position.z + forward.z * JUMP_ROPE_DISTANCE,
+    );
+  }
+
+  private snapInFrontOfPlayer(player: Player) {
+    this.speed = 0;
+    this.path = [];
+    this.positionInFrontOf(player, this.position);
+    this.resolveWallCollision();
+  }
+
+  private maintainInFrontOfPlayer(player: Player) {
+    this.speed = 0;
+    this.path = [];
+    this.positionInFrontOf(player, this.position);
+    this.resolveWallCollision();
+  }
+
   setDisappointed() {
     this.disappointed = true;
+  }
+
+  /** After a completed jump rope session, ignore the player briefly. */
+  startEngageCooldown(seconds = ENGAGE_COOLDOWN) {
+    this.playCool = seconds;
   }
 }

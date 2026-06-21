@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { inputManager, InputAction } from '../engine/InputManager';
 import { gameLoop } from '../engine/GameLoop';
-import { slideMove, type AABB } from '../engine/Physics';
+import { slideMove, checkTrigger, type AABB } from '../engine/Physics';
 
 export class Player {
   position = new THREE.Vector3();
@@ -59,7 +59,7 @@ export class Player {
     this.staminaCheck(dt);
     this.guiltCheck(dt);
 
-    if (this.jumpRope && this.position.distanceTo(this.frozenPosition) >= 1) {
+    if (this.jumpRope && !checkTrigger(this.position, this.frozenPosition, 1)) {
       this.deactivateJumpRope();
     }
 
@@ -81,6 +81,8 @@ export class Player {
   }
 
   private mouseMove(_dt: number) {
+    if (this.jumpRope) return;
+
     const { dx } = inputManager.getMouseDelta();
     this.rotation -= dx * this.mouseSensitivity * this.flipaturn;
   }
@@ -152,6 +154,13 @@ export class Player {
 
   deactivateJumpRope() {
     this.jumpRope = false;
+  }
+
+  /** Turn to face a point on the XZ plane (used when Playtime starts jump rope). */
+  faceToward(x: number, z: number) {
+    const dx = x - this.position.x;
+    const dz = z - this.position.z;
+    this.rotation = Math.atan2(-dx, -dz);
   }
 
   activateBoots(duration = 15) {

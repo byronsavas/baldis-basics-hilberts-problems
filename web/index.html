@@ -16,7 +16,9 @@
         <div class="warning-content">
           <h1>WARNING</h1>
           <p>This game has some loud sounds. Play at your own risk.</p>
-          <p class="blink">Press any key to continue</p>
+          <p id="warning-continue" class="blink warning-continue" role="button" tabindex="0">
+            Press any key to continue
+          </p>
           <button id="btn-sound-off" class="warning-sound-off" type="button">
             Click here to play with sound off
           </button>
@@ -55,34 +57,61 @@
         <div id="warning-text" class="hidden">You're running low on stamina!</div>
       </div>
 
-      <!-- Math game overlay -->
+      <!-- Math game overlay (You Can Think Pad) -->
       <div id="math-game" class="screen">
-        <div id="math-content">
-          <div id="hilbert-face"></div>
-          <div id="hilbert-notebook-title"></div>
-          <div id="math-problem">
-            <span id="math-num1"></span>
-            <span id="math-sign"></span>
-            <span id="math-num2"></span>
-            <span id="math-equals">=</span>
+        <div id="think-pad">
+          <div class="think-pad-bulb" aria-hidden="true"></div>
+          <div class="think-pad-antenna" aria-hidden="true"></div>
+          <div id="think-pad-title">You Can Think Pad</div>
+
+          <div id="think-pad-body">
+            <div id="think-pad-left">
+              <div id="math-results">
+                <span class="result-box" data-idx="0"></span>
+                <span class="result-box" data-idx="1"></span>
+                <span class="result-box" data-idx="2"></span>
+              </div>
+              <div id="think-pad-portrait"></div>
+            </div>
+
+            <div id="think-pad-center">
+              <div id="math-question-panel">
+                <div id="math-problem-label">SOLVE MATH Q1:</div>
+                <div id="math-equation"></div>
+                <div id="hilbert-problem-text" class="hidden"></div>
+              </div>
+              <div id="math-answer-panel">
+                <input id="math-answer" type="text" autocomplete="off" spellcheck="false" />
+              </div>
+            </div>
+
+            <div id="think-pad-keypad">
+              <div class="keypad-grid">
+                <button type="button" class="keypad-key" data-key="7">7</button>
+                <button type="button" class="keypad-key" data-key="8">8</button>
+                <button type="button" class="keypad-key" data-key="9">9</button>
+                <button type="button" class="keypad-key" data-key="4">4</button>
+                <button type="button" class="keypad-key" data-key="5">5</button>
+                <button type="button" class="keypad-key" data-key="6">6</button>
+                <button type="button" class="keypad-key" data-key="1">1</button>
+                <button type="button" class="keypad-key" data-key="2">2</button>
+                <button type="button" class="keypad-key" data-key="3">3</button>
+                <button type="button" class="keypad-key" data-key="C">C</button>
+                <button type="button" class="keypad-key" data-key="0">0</button>
+                <button type="button" class="keypad-key" data-key="-">-</button>
+              </div>
+              <button type="button" id="math-ok">OK!</button>
+            </div>
           </div>
-          <div id="hilbert-problem-text" class="hidden"></div>
-          <input id="math-answer" type="text" autocomplete="off" />
-          <button id="math-ok">OK</button>
-          <div id="math-results">
-            <span class="result-dot" data-idx="0"></span>
-            <span class="result-dot" data-idx="1"></span>
-            <span class="result-dot" data-idx="2"></span>
-          </div>
-          <div id="math-problem-count">Problem 1 of 3</div>
         </div>
       </div>
 
-      <!-- Jump rope minigame -->
+      <!-- Jump rope minigame (Baldi-style centered overlay) -->
       <div id="jump-rope" class="screen">
         <div id="jump-rope-content">
-          <div id="jump-count">0/5</div>
-          <div id="rope-visual">JUMP!</div>
+          <div id="jump-rope-title">Let's play some infinite jump rope!</div>
+          <div id="jump-rope-prompt">Press the space bar to jump!</div>
+          <div id="jump-count">0</div>
         </div>
       </div>
 

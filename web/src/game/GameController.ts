@@ -72,6 +72,7 @@ export class GameController {
 
   private mouseReleased = false;
   private ignoreNextEscape = false;
+  private wasJumpRoping = false;
   private canvas: HTMLCanvasElement | null = null;
   private onCanvasClick = () => {
     if (!this.gamePaused && !this.player.gameOver && !inputManager.isPointerLocked()) {
@@ -119,6 +120,7 @@ export class GameController {
     this.baldiQuoteCooldown = 0;
     this.mouseReleased = false;
     this.ignoreNextEscape = false;
+    this.wasJumpRoping = false;
     localStorage.setItem('CurrentMode', mode);
 
     // Setup scene
@@ -222,9 +224,8 @@ export class GameController {
     this.scene.add(this.principal.mesh);
     this.principal.syncMesh();
 
-    // Playtime
+    // Playtime — active from the start (like the original game)
     this.playtime.position.copy(this.map.gridToWorld(9, 13));
-    this.playtime.active = false;
     this.scene.add(this.playtime.mesh);
     this.playtime.syncMesh();
 
@@ -301,7 +302,6 @@ export class GameController {
 
     if (this.learningActive) {
       gameLoop.setTimeScale(0);
-      this.jumpRopeUI.update(dt);
       return;
     }
 
@@ -392,8 +392,7 @@ export class GameController {
     this.checkNpcTriggers();
     this.updateBaldiProximityQuotes(dt, pp);
 
-    // Jump rope UI
-    this.jumpRopeUI.update(dt);
+    this.updateJumpRope(dt);
 
     // Update HUD
     this.hud.updateStamina(this.player.stamina, this.player.maxStamina);
@@ -410,6 +409,32 @@ export class GameController {
 
     // Check win condition
     this.checkExits();
+  }
+
+  private updateJumpRope(dt: number) {
+    if (this.player.jumpRope && !this.wasJumpRoping) {
+      this.camera.resetJump();
+      inputManager.unlockPointer();
+      this.jumpRopeUI.open({
+        getJumpHeight: () => this.camera.jumpHeight,
+        onSuccess: () => {},
+        onFail: () => {},
+        onComplete: () => {
+          SFXPlayer.stopPlaytimeMusic();
+          this.player.deactivateJumpRope();
+          this.playtime.startEngageCooldown();
+        },
+      });
+    } else if (!this.player.jumpRope && this.wasJumpRoping) {
+      this.jumpRopeUI.close();
+      inputManager.lockPointer();
+    }
+
+    this.wasJumpRoping = this.player.jumpRope;
+
+    if (this.player.jumpRope) {
+      this.jumpRopeUI.update(dt);
+    }
   }
 
   private handleInteract() {
@@ -586,6 +611,7 @@ export class GameController {
       case ItemId.SafetyScissors:
         // Escape jump rope
         if (this.player.jumpRope) {
+          SFXPlayer.stopPlaytimeMusic();
           this.player.deactivateJumpRope();
           this.playtime.setDisappointed();
         }
@@ -809,6 +835,7 @@ export class GameController {
   dispose() {
     this.schoolMusic.stop();
     this.spookyMusic.stop();
+    SFXPlayer.stopPlaytimeMusic();
     this.hud.hide();
     this.pauseMenuUI.hide();
     optionsMenuUI.hide();

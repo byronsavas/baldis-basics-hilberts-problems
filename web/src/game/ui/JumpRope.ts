@@ -5,21 +5,25 @@ export interface JumpRopeCallbacks {
   onComplete(): void;
 }
 
+/** Labels Playtime calls out across five successful jumps */
+const JUMP_ROPE_COUNT_LABELS = ['0', '...', 'ℵ₀', '...', 'ℵ₁'];
+
+const JUMP_SUCCESS_HEIGHT = 0.15;
+
 export class JumpRopeUI {
   private el: HTMLElement;
   private countEl: HTMLElement;
-  private ropeVisual: HTMLElement;
 
   private jumps = 0;
   private ropePosition = 0;
   private jumpDelay = 0;
+  private maxJumpThisSwing = 0;
   private active = false;
   private callbacks: JumpRopeCallbacks | null = null;
 
   constructor() {
     this.el = document.getElementById('jump-rope')!;
     this.countEl = document.getElementById('jump-count')!;
-    this.ropeVisual = document.getElementById('rope-visual')!;
   }
 
   open(callbacks: JumpRopeCallbacks) {
@@ -27,10 +31,23 @@ export class JumpRopeUI {
     this.jumps = 0;
     this.ropePosition = 0;
     this.jumpDelay = 1;
+    this.maxJumpThisSwing = 0;
     this.active = true;
     this.el.classList.add('active');
-    this.countEl.textContent = '0/5';
-    this.ropeVisual.textContent = 'Get Ready...';
+    this.updateCountDisplay();
+  }
+
+  private updateCountDisplay() {
+    const label = JUMP_ROPE_COUNT_LABELS[Math.min(this.jumps, JUMP_ROPE_COUNT_LABELS.length - 1)];
+    this.countEl.textContent = label;
+  }
+
+  private resetSequence() {
+    this.jumps = 0;
+    this.ropePosition = 0;
+    this.maxJumpThisSwing = 0;
+    this.jumpDelay = 0.75;
+    this.updateCountDisplay();
   }
 
   close() {
@@ -46,29 +63,27 @@ export class JumpRopeUI {
       return;
     }
 
+    const jumpHeight = this.callbacks?.getJumpHeight() ?? 0;
     this.ropePosition += dt * 2;
+
+    const ropePhase = Math.sin(this.ropePosition * Math.PI);
+    const ropeUp = ropePhase > 0.5;
+
+    if (ropeUp) {
+      this.maxJumpThisSwing = Math.max(this.maxJumpThisSwing, jumpHeight);
+    }
 
     if (this.ropePosition >= 1) {
       this.ropePosition = 0;
       this.ropeHit();
-    }
-
-    const ropePhase = Math.sin(this.ropePosition * Math.PI);
-    if (ropePhase > 0.5) {
-      this.ropeVisual.textContent = 'JUMP!';
-      this.ropeVisual.style.color = '#f00';
-    } else {
-      this.ropeVisual.textContent = '...';
-      this.ropeVisual.style.color = '#0f0';
+      this.maxJumpThisSwing = 0;
     }
   }
 
   private ropeHit() {
-    const jumpHeight = this.callbacks?.getJumpHeight() ?? 0;
-
-    if (jumpHeight > 0.2) {
+    if (this.maxJumpThisSwing > JUMP_SUCCESS_HEIGHT) {
       this.jumps++;
-      this.countEl.textContent = `${this.jumps}/5`;
+      this.updateCountDisplay();
       this.callbacks?.onSuccess();
 
       if (this.jumps >= 5) {
@@ -77,7 +92,7 @@ export class JumpRopeUI {
       }
     } else {
       this.callbacks?.onFail();
-      this.close();
+      this.resetSequence();
     }
   }
 }

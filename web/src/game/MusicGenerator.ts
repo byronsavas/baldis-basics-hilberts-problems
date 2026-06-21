@@ -108,6 +108,22 @@ export class SFXPlayer {
     '/audio/baldi/hilbert-quotes/the-infinite.wav',
   ];
   private static quoteAudio: HTMLAudioElement | null = null;
+  private static playtimeAudio: HTMLAudioElement | null = null;
+
+  static playPlaytimeMusic(volume = 0.5) {
+    this.stopPlaytimeMusic();
+    this.playtimeAudio = new Audio('/audio/Mus_Playtime.wav');
+    this.playtimeAudio.loop = true;
+    this.playtimeAudio.volume = audioSettings.scaledSfx(volume);
+    this.playtimeAudio.play().catch(() => {});
+  }
+
+  static stopPlaytimeMusic() {
+    if (!this.playtimeAudio) return;
+    this.playtimeAudio.pause();
+    this.playtimeAudio.currentTime = 0;
+    this.playtimeAudio = null;
+  }
 
   static play(path: string, volume = 0.5) {
     const audio = new Audio(path);

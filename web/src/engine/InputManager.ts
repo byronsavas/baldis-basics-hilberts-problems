@@ -46,6 +46,9 @@ class InputManager {
     this.canvas = canvas;
 
     document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+      }
       if (!this.keysDown.has(e.code)) {
         this.keysJustDown.add(e.code);
       }

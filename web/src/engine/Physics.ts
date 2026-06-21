@@ -126,7 +126,7 @@ export function slideMove(
 }
 
 /**
- * Check distance-based trigger overlap between two positions.
+ * Check distance-based trigger overlap between two positions (XZ plane only).
  */
 export function checkTrigger(
   a: THREE.Vector3,
@@ -136,6 +136,13 @@ export function checkTrigger(
   const dx = a.x - b.x;
   const dz = a.z - b.z;
   return dx * dx + dz * dz < radius * radius;
+}
+
+/** Horizontal (XZ) distance between two world positions. */
+export function horizontalDistance(a: THREE.Vector3, b: THREE.Vector3): number {
+  const dx = a.x - b.x;
+  const dz = a.z - b.z;
+  return Math.sqrt(dx * dx + dz * dz);
 }
 
 /**

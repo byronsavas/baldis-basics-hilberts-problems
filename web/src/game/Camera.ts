@@ -21,12 +21,15 @@ export class GameCamera {
     });
   }
 
+  resetJump() {
+    this.jumpHeight = 0;
+    this.jumpVelocity = 0;
+  }
+
   update(dt: number, player: Player, baldiPosition?: THREE.Vector3) {
     if (player.jumpRope) {
-      if (inputManager.getActionDown(InputAction.Jump)) {
-        if (this.jumpHeight <= 0) {
-          this.jumpVelocity = this.initVelocity;
-        }
+      if (inputManager.getAction(InputAction.Jump) && this.jumpHeight <= 0) {
+        this.jumpVelocity = this.initVelocity;
       }
       this.jumpVelocity += this.gravity * dt;
       this.jumpHeight += this.jumpVelocity * dt;
@@ -39,7 +42,7 @@ export class GameCamera {
       this.jumpVelocity = 0;
     }
 
-    this.lookBehind = inputManager.getAction(InputAction.LookBehind);
+    this.lookBehind = !player.jumpRope && inputManager.getAction(InputAction.LookBehind);
 
     if (player.gameOver && baldiPosition) {
       this.camera.position.copy(player.position);
