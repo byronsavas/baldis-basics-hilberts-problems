@@ -40,6 +40,7 @@ class InputManager {
   private pointerLocked = false;
   private canvas: HTMLCanvasElement | null = null;
   onPointerLockLost: (() => void) | null = null;
+  onPointerLockGained: (() => void) | null = null;
 
   init(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -84,8 +85,10 @@ class InputManager {
     document.addEventListener('pointerlockchange', () => {
       const wasLocked = this.pointerLocked;
       this.pointerLocked = document.pointerLockElement === this.canvas;
-      if (wasLocked && !this.pointerLocked && this.onPointerLockLost) {
-        this.onPointerLockLost();
+      if (wasLocked && !this.pointerLocked) {
+        this.onPointerLockLost?.();
+      } else if (!wasLocked && this.pointerLocked) {
+        this.onPointerLockGained?.();
       }
     });
   }

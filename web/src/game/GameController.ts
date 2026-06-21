@@ -68,6 +68,14 @@ export class GameController {
   learningActive = false;
   gameOverDelay = 0.5;
 
+  private mouseReleased = false;
+  private ignoreNextEscape = false;
+  private canvas: HTMLCanvasElement | null = null;
+  private onCanvasClick = () => {
+    if (!this.gamePaused && !this.player.gameOver && !inputManager.isPointerLocked()) {
+      inputManager.lockPointer();
+    }
+  };
   private itemPickups: THREE.Mesh[] = [];
   private schoolMusic: MusicPlayer;
   private spookyMusic: SpookyMusic;
@@ -100,6 +108,9 @@ export class GameController {
 
   init(mode: string) {
     this.mode = mode;
+    this.gamePaused = false;
+    this.mouseReleased = false;
+    this.ignoreNextEscape = false;
     localStorage.setItem('CurrentMode', mode);
 
     // Setup scene
@@ -163,12 +174,19 @@ export class GameController {
       this.pauseMenuUI.show();
     };
 
-    // When pointer lock is lost (e.g. user presses Escape), open pause menu
+    // First Escape releases the mouse; second Escape pauses the game
     inputManager.onPointerLockLost = () => {
       if (!this.gamePaused && !this.player.gameOver) {
-        this.pauseGame();
+        this.mouseReleased = true;
+        this.ignoreNextEscape = true;
       }
     };
+    inputManager.onPointerLockGained = () => {
+      this.mouseReleased = false;
+    };
+
+    this.canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+    this.canvas.addEventListener('click', this.onCanvasClick);
 
     // Lock mouse
     inputManager.lockPointer();
@@ -277,6 +295,8 @@ export class GameController {
       this.jumpRopeUI.update(dt);
       return;
     }
+
+    this.handlePauseInput();
 
     if (this.gamePaused) {
       return;
@@ -706,6 +726,7 @@ export class GameController {
 
   pauseGame() {
     this.gamePaused = true;
+    this.mouseReleased = false;
     gameLoop.setTimeScale(0);
     this.pauseMenuUI.show();
     this.schoolMusic.suspend();
@@ -713,8 +734,22 @@ export class GameController {
     inputManager.unlockPointer();
   }
 
+  private handlePauseInput() {
+    if (!inputManager.isKeyDown('Escape')) return;
+
+    if (this.ignoreNextEscape) {
+      this.ignoreNextEscape = false;
+      return;
+    }
+
+    if (this.mouseReleased && !this.gamePaused) {
+      this.pauseGame();
+    }
+  }
+
   unpauseGame() {
     this.gamePaused = false;
+    this.mouseReleased = false;
     gameLoop.setTimeScale(1);
     this.pauseMenuUI.hide();
     optionsMenuUI.hide();
@@ -725,6 +760,7 @@ export class GameController {
 
   exitGame() {
     this.gamePaused = false;
+    this.mouseReleased = false;
     gameLoop.setTimeScale(1);
     this.pauseMenuUI.hide();
     optionsMenuUI.hide();
@@ -741,6 +777,9 @@ export class GameController {
     this.mathGameUI.close();
     this.jumpRopeUI.close();
     inputManager.onPointerLockLost = null;
+    inputManager.onPointerLockGained = null;
+    this.canvas?.removeEventListener('click', this.onCanvasClick);
+    this.canvas = null;
 
     while (this.scene.children.length > 0) {
       this.scene.remove(this.scene.children[0]);

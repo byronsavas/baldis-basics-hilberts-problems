@@ -208,13 +208,26 @@ body {
   pointer-events: none;
 }
 
-#hud-top {
+#hud-top-left {
   position: absolute;
   top: 10px;
   left: 10px;
+}
+
+#hud-top-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
   display: flex;
-  gap: 20px;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+#hud-bottom-left {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
 }
 
 #notebook-count {
@@ -236,17 +249,6 @@ body {
   height: 100%;
   background: #0f0;
   transition: width 0.1s;
-}
-
-#hud-bottom {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
 }
 
 #item-slots {
@@ -274,6 +276,7 @@ body {
   font-size: 14px;
   color: #ff0;
   text-shadow: 1px 1px #000;
+  text-align: right;
 }
 
 #reticle {
