@@ -2,20 +2,27 @@
  * Music player using the original Baldi's Basics OST audio files.
  */
 
+import { audioSettings } from '../engine/AudioSettings';
+
 export class MusicPlayer {
   private audio: HTMLAudioElement | null = null;
   private playing = false;
+  private baseVolume = 0.5;
+  private unsubscribe: (() => void) | null = null;
 
   start() {
     if (this.playing) return;
     this.audio = new Audio('/audio/Mus_School.wav');
     this.audio.loop = true;
-    this.audio.volume = 0.5;
+    this.applyVolume();
     this.audio.play().catch(() => {});
     this.playing = true;
+    this.unsubscribe = audioSettings.onMusicVolumeChange(() => this.applyVolume());
   }
 
   stop() {
+    this.unsubscribe?.();
+    this.unsubscribe = null;
     if (this.audio) {
       this.audio.pause();
       this.audio.currentTime = 0;
@@ -25,7 +32,12 @@ export class MusicPlayer {
   }
 
   setVolume(v: number) {
-    if (this.audio) this.audio.volume = v;
+    this.baseVolume = v;
+    this.applyVolume();
+  }
+
+  private applyVolume() {
+    if (this.audio) this.audio.volume = audioSettings.scaledMusic(this.baseVolume);
   }
 
   suspend() {
@@ -43,23 +55,37 @@ export class MusicPlayer {
 export class SpookyMusic {
   private audio: HTMLAudioElement | null = null;
   private playing = false;
+  private baseVolume = 0.5;
+  private unsubscribe: (() => void) | null = null;
 
   start() {
     if (this.playing) return;
     this.audio = new Audio('/audio/Ev5_Loop.mp3');
     this.audio.loop = true;
-    this.audio.volume = 0.5;
+    this.applyVolume();
     this.audio.play().catch(() => {});
     this.playing = true;
+    this.unsubscribe = audioSettings.onMusicVolumeChange(() => this.applyVolume());
   }
 
   stop() {
+    this.unsubscribe?.();
+    this.unsubscribe = null;
     if (this.audio) {
       this.audio.pause();
       this.audio.currentTime = 0;
       this.audio = null;
     }
     this.playing = false;
+  }
+
+  setVolume(v: number) {
+    this.baseVolume = v;
+    this.applyVolume();
+  }
+
+  private applyVolume() {
+    if (this.audio) this.audio.volume = audioSettings.scaledMusic(this.baseVolume);
   }
 
   suspend() {
@@ -79,7 +105,7 @@ export class SFXPlayer {
 
   static play(path: string, volume = 0.5) {
     const audio = new Audio(path);
-    audio.volume = volume;
+    audio.volume = audioSettings.scaledSfx(volume);
     audio.play().catch(() => {});
   }
 
@@ -123,7 +149,7 @@ export class SFXPlayer {
     osc.type = 'square';
     osc.frequency.setValueAtTime(200, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + duration);
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.setValueAtTime(0.15 * audioSettings.sfxVolume, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc.connect(gain).connect(ctx.destination);
     osc.start();
@@ -139,7 +165,7 @@ export class SFXPlayer {
     osc.type = 'square';
     osc.frequency.setValueAtTime(80, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + duration);
-    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.setValueAtTime(0.12 * audioSettings.sfxVolume, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc.connect(gain).connect(ctx.destination);
     osc.start();

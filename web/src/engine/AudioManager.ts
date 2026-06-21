@@ -1,3 +1,5 @@
+import { audioSettings } from './AudioSettings';
+
 class AudioManager {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
@@ -5,11 +7,15 @@ class AudioManager {
   private queue: AudioBuffer[] = [];
   private queuePlaying = false;
   private currentQueueSource: AudioBufferSourceNode | null = null;
+  private unsubscribeSfx: (() => void) | null = null;
 
   init() {
     this.ctx = new AudioContext();
     this.masterGain = this.ctx.createGain();
     this.masterGain.connect(this.ctx.destination);
+    this.applyMasterVolume();
+    this.unsubscribeSfx?.();
+    this.unsubscribeSfx = audioSettings.onSfxVolumeChange(() => this.applyMasterVolume());
   }
 
   getContext(): AudioContext {
@@ -127,7 +133,11 @@ class AudioManager {
   }
 
   setMasterVolume(v: number) {
-    if (this.masterGain) this.masterGain.gain.value = v;
+    audioSettings.setSfxVolume(v);
+  }
+
+  private applyMasterVolume() {
+    if (this.masterGain) this.masterGain.gain.value = audioSettings.scaledSfx(1);
   }
 
   resume() {

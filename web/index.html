@@ -17,6 +17,9 @@
           <h1>WARNING</h1>
           <p>This game has some loud sounds. Play at your own risk.</p>
           <p class="blink">Press any key to continue</p>
+          <button id="btn-sound-off" class="warning-sound-off" type="button">
+            Click here to play with sound off
+          </button>
         </div>
       </div>
 
@@ -86,7 +89,26 @@
         <div class="menu-content">
           <h2>PAUSED</h2>
           <button id="btn-continue">Continue</button>
+          <button id="btn-options">Options</button>
           <button id="btn-quit">Quit to Menu</button>
+        </div>
+      </div>
+
+      <!-- Options menu -->
+      <div id="options-menu" class="screen">
+        <div class="menu-content">
+          <h2>OPTIONS</h2>
+          <div class="volume-row">
+            <label for="music-volume">Music Volume</label>
+            <input id="music-volume" type="range" min="0" max="100" />
+            <span id="music-volume-value">50%</span>
+          </div>
+          <div class="volume-row">
+            <label for="sfx-volume">Sound Effects Volume</label>
+            <input id="sfx-volume" type="range" min="0" max="100" />
+            <span id="sfx-volume-value">50%</span>
+          </div>
+          <button id="btn-options-back">Back</button>
         </div>
       </div>
 

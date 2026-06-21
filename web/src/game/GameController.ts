@@ -24,6 +24,7 @@ import { AlarmClock } from './items/AlarmClock';
 import { HUD } from './ui/HUD';
 import { MathGameUI } from './ui/MathGame';
 import { PauseMenuUI } from './ui/PauseMenu';
+import { optionsMenuUI } from './ui/OptionsMenu';
 import { JumpRopeUI } from './ui/JumpRope';
 import { MusicPlayer, SpookyMusic, SFXPlayer } from './MusicGenerator';
 
@@ -152,7 +153,15 @@ export class GameController {
 
     // Wire pause menu buttons
     this.pauseMenuUI.onContinue = () => this.unpauseGame();
+    this.pauseMenuUI.onOptions = () => {
+      this.pauseMenuUI.hide();
+      optionsMenuUI.show();
+    };
     this.pauseMenuUI.onQuit = () => this.exitGame();
+    optionsMenuUI.onBack = () => {
+      optionsMenuUI.hide();
+      this.pauseMenuUI.show();
+    };
 
     // When pointer lock is lost (e.g. user presses Escape), open pause menu
     inputManager.onPointerLockLost = () => {
@@ -708,6 +717,7 @@ export class GameController {
     this.gamePaused = false;
     gameLoop.setTimeScale(1);
     this.pauseMenuUI.hide();
+    optionsMenuUI.hide();
     this.schoolMusic.resume();
     this.spookyMusic.resume();
     inputManager.lockPointer();
@@ -717,6 +727,7 @@ export class GameController {
     this.gamePaused = false;
     gameLoop.setTimeScale(1);
     this.pauseMenuUI.hide();
+    optionsMenuUI.hide();
     inputManager.unlockPointer();
     sceneManager.loadScene('mainmenu');
   }
@@ -726,6 +737,7 @@ export class GameController {
     this.spookyMusic.stop();
     this.hud.hide();
     this.pauseMenuUI.hide();
+    optionsMenuUI.hide();
     this.mathGameUI.close();
     this.jumpRopeUI.close();
     inputManager.onPointerLockLost = null;

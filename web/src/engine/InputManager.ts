@@ -131,6 +131,13 @@ class InputManager {
     return this.keysJustDown.size > 0;
   }
 
+  anyKeyboardKeyDown(): boolean {
+    for (const code of this.keysJustDown) {
+      if (!code.startsWith('Mouse')) return true;
+    }
+    return false;
+  }
+
   getMouseDelta(): { dx: number; dy: number } {
     return { dx: this.mouseDx, dy: this.mouseDy };
   }

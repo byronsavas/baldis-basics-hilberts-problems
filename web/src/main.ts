@@ -20,6 +20,15 @@ window.addEventListener('resize', () => {
 
 inputManager.init(canvas);
 
+document.addEventListener('selectstart', (e) => {
+  const tag = (e.target as HTMLElement).tagName;
+  if (tag !== 'INPUT' && tag !== 'TEXTAREA') e.preventDefault();
+});
+
+document.addEventListener('dragstart', (e) => {
+  if ((e.target as HTMLElement).tagName === 'IMG') e.preventDefault();
+});
+
 sceneManager.register(new WarningScene());
 sceneManager.register(new MainMenuScene());
 sceneManager.register(new SchoolScene('story', renderer));
