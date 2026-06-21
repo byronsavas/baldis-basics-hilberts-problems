@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { resolveCylinderPenetration, slideMove, type AABB } from '../../engine/Physics';
 import { pathfinder } from '../Pathfinding';
 
 const textureLoader = new THREE.TextureLoader();
@@ -12,6 +13,8 @@ export abstract class NpcBase {
   protected pathIndex = 0;
   protected destination = new THREE.Vector3();
   protected coolDown = 0;
+  protected walls: AABB[] = [];
+  protected collisionRadius: number;
 
   mesh: THREE.Group;
   protected spriteMesh: THREE.Mesh;
@@ -33,10 +36,38 @@ export abstract class NpcBase {
     });
 
     const w = spriteWidth ?? spriteHeight * 0.6;
+    // Slightly wider than the sprite so billboards don't visually clip walls.
+    this.collisionRadius = Math.max(w * 0.55, 2);
     const geo = new THREE.PlaneGeometry(w, spriteHeight);
     this.spriteMesh = new THREE.Mesh(geo, this.spriteMaterial);
     this.spriteMesh.position.y = spriteHeight / 2;
     this.mesh.add(this.spriteMesh);
+  }
+
+  setWalls(walls: AABB[]) {
+    this.walls = walls;
+  }
+
+  protected applyMove(move: THREE.Vector3) {
+    if (move.lengthSq() === 0 || this.walls.length === 0) return;
+
+    const maxStep = this.collisionRadius * 0.75;
+    let remaining = move.length();
+    const direction = move.clone().normalize();
+
+    while (remaining > 0) {
+      const step = Math.min(remaining, maxStep);
+      const stepMove = direction.clone().multiplyScalar(step);
+      const adjusted = slideMove(this.position, stepMove, this.collisionRadius, this.walls);
+      this.position.add(adjusted);
+      resolveCylinderPenetration(this.position, this.collisionRadius, this.walls);
+      remaining -= step;
+    }
+  }
+
+  protected resolveWallCollision() {
+    if (this.walls.length === 0) return;
+    resolveCylinderPenetration(this.position, this.collisionRadius, this.walls);
   }
 
   /** Call each frame so the sprite always faces the camera */
@@ -74,7 +105,7 @@ export abstract class NpcBase {
 
     direction.normalize();
     const moveAmount = Math.min(this.speed * dt, dist);
-    this.position.add(direction.multiplyScalar(moveAmount));
+    this.applyMove(direction.multiplyScalar(moveAmount));
     this.mesh.position.copy(this.position);
   }
 
@@ -99,6 +130,7 @@ export abstract class NpcBase {
   abstract update(dt: number, playerPos: THREE.Vector3): void;
 
   syncMesh() {
+    this.resolveWallCollision();
     this.mesh.position.copy(this.position);
   }
 }

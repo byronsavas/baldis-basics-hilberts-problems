@@ -206,14 +206,14 @@ export class GameController {
   }
 
   private setupNPCs() {
-    // Baldi starts at the school entrance area
-    this.baldi.position.set(90, 0, 20);
+    // Baldi starts in the main north-south hallway (center of cell, not on a wall edge)
+    this.baldi.position.copy(this.map.gridToWorld(2, 9));
     this.baldi.active = false; // Activated after first notebook
     this.scene.add(this.baldi.mesh);
     this.baldi.syncMesh();
 
     // Principal
-    this.principal.position.set(50, 0, 90);
+    this.principal.position.copy(this.map.gridToWorld(9, 5));
     this.principal.setOffice(
       new THREE.Vector3(20, 4, 20),
       new THREE.Vector3(18, 4, 20),
@@ -223,13 +223,13 @@ export class GameController {
     this.principal.syncMesh();
 
     // Playtime
-    this.playtime.position.set(130, 0, 90);
+    this.playtime.position.copy(this.map.gridToWorld(9, 13));
     this.playtime.active = false;
     this.scene.add(this.playtime.mesh);
     this.playtime.syncMesh();
 
     // First Prize
-    this.firstPrize.position.set(50, 0, 140);
+    this.firstPrize.position.copy(this.map.gridToWorld(14, 5));
     this.firstPrize.active = false;
     this.scene.add(this.firstPrize.mesh);
     this.firstPrize.syncMesh();
@@ -238,14 +238,14 @@ export class GameController {
     this.scene.add(this.bully.mesh);
 
     // Crafters
-    this.crafters.position.set(140, 0, 140);
-    this.crafters.baldiTeleportPoint.set(90, 0, 20);
-    this.crafters.playerTeleportPoint.set(90, 0, 40);
+    this.crafters.position.copy(this.map.gridToWorld(14, 14));
+    this.crafters.baldiTeleportPoint.copy(this.map.gridToWorld(2, 9));
+    this.crafters.playerTeleportPoint.copy(this.map.gridToWorld(4, 9));
     this.scene.add(this.crafters.mesh);
     this.crafters.syncMesh();
 
     // Gotta Sweep
-    this.gottaSweep.setOrigin(new THREE.Vector3(90, 0, 90));
+    this.gottaSweep.setOrigin(this.map.gridToWorld(9, 9));
     this.scene.add(this.gottaSweep.mesh);
     this.gottaSweep.syncMesh();
   }
@@ -713,6 +713,16 @@ export class GameController {
       if (aabb) walls.push(aabb);
     }
     this.player.setWalls(walls);
+    for (const npc of [
+      this.baldi,
+      this.principal,
+      this.playtime,
+      this.firstPrize,
+      this.crafters,
+      this.gottaSweep,
+    ]) {
+      npc.setWalls(walls);
+    }
   }
 
   private checkExits() {

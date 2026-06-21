@@ -28,8 +28,72 @@ export function pointInAABB(point: THREE.Vector3, box: AABB): boolean {
   );
 }
 
+const EXPAND_Y = new THREE.Vector3(0, 10, 0);
+
+function cylinderOverlapsWall(
+  position: THREE.Vector3,
+  radius: number,
+  wall: AABB,
+  expandedMin: THREE.Vector3,
+  expandedMax: THREE.Vector3,
+): boolean {
+  expandedMin.copy(wall.min).sub(new THREE.Vector3(radius, 0, radius));
+  expandedMax.copy(wall.max).add(EXPAND_Y).add(new THREE.Vector3(radius, 0, radius));
+  return (
+    position.x >= expandedMin.x && position.x <= expandedMax.x &&
+    position.y >= expandedMin.y && position.y <= expandedMax.y &&
+    position.z >= expandedMin.z && position.z <= expandedMax.z
+  );
+}
+
+function pushOutOfWall(
+  position: THREE.Vector3,
+  radius: number,
+  wall: AABB,
+  expandedMin: THREE.Vector3,
+  expandedMax: THREE.Vector3,
+): void {
+  expandedMin.copy(wall.min).sub(new THREE.Vector3(radius, 0, radius));
+  expandedMax.copy(wall.max).add(EXPAND_Y).add(new THREE.Vector3(radius, 0, radius));
+
+  const overlapX1 = position.x - expandedMin.x;
+  const overlapX2 = expandedMax.x - position.x;
+  const overlapZ1 = position.z - expandedMin.z;
+  const overlapZ2 = expandedMax.z - position.z;
+
+  const minOverlap = Math.min(overlapX1, overlapX2, overlapZ1, overlapZ2);
+
+  if (minOverlap === overlapX1) position.x = expandedMin.x + 0.001;
+  else if (minOverlap === overlapX2) position.x = expandedMax.x - 0.001;
+  else if (minOverlap === overlapZ1) position.z = expandedMin.z + 0.001;
+  else position.z = expandedMax.z - 0.001;
+}
+
 /**
- * Slide a cylinder (player) against wall AABBs.
+ * Push a cylinder out of any wall AABBs it currently overlaps.
+ */
+export function resolveCylinderPenetration(
+  position: THREE.Vector3,
+  radius: number,
+  walls: AABB[],
+): void {
+  const expandedMin = new THREE.Vector3();
+  const expandedMax = new THREE.Vector3();
+
+  for (let pass = 0; pass < 6; pass++) {
+    let moved = false;
+    for (const wall of walls) {
+      if (cylinderOverlapsWall(position, radius, wall, expandedMin, expandedMax)) {
+        pushOutOfWall(position, radius, wall, expandedMin, expandedMax);
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+}
+
+/**
+ * Slide a cylinder (player/NPC) against wall AABBs.
  * Returns the adjusted movement vector.
  */
 export function slideMove(
@@ -39,31 +103,23 @@ export function slideMove(
   walls: AABB[],
 ): THREE.Vector3 {
   const result = movement.clone();
-  const newPos = position.clone().add(result);
+  const newPos = new THREE.Vector3();
+  const expandedMin = new THREE.Vector3();
+  const expandedMax = new THREE.Vector3();
 
-  for (const wall of walls) {
-    const expandedMin = wall.min.clone().sub(new THREE.Vector3(radius, 0, radius));
-    const expandedMax = wall.max.clone().add(new THREE.Vector3(radius, 10, radius));
+  for (let pass = 0; pass < 4; pass++) {
+    let adjusted = false;
+    newPos.copy(position).add(result);
 
-    if (
-      newPos.x >= expandedMin.x && newPos.x <= expandedMax.x &&
-      newPos.y >= expandedMin.y && newPos.y <= expandedMax.y &&
-      newPos.z >= expandedMin.z && newPos.z <= expandedMax.z
-    ) {
-      const overlapX1 = newPos.x - expandedMin.x;
-      const overlapX2 = expandedMax.x - newPos.x;
-      const overlapZ1 = newPos.z - expandedMin.z;
-      const overlapZ2 = expandedMax.z - newPos.z;
-
-      const minOverlap = Math.min(overlapX1, overlapX2, overlapZ1, overlapZ2);
-
-      if (minOverlap === overlapX1) result.x += expandedMin.x - newPos.x + 0.001;
-      else if (minOverlap === overlapX2) result.x += expandedMax.x - newPos.x - 0.001;
-      else if (minOverlap === overlapZ1) result.z += expandedMin.z - newPos.z + 0.001;
-      else result.z += expandedMax.z - newPos.z - 0.001;
-
-      newPos.copy(position).add(result);
+    for (const wall of walls) {
+      if (cylinderOverlapsWall(newPos, radius, wall, expandedMin, expandedMax)) {
+        pushOutOfWall(newPos, radius, wall, expandedMin, expandedMax);
+        result.copy(newPos).sub(position);
+        adjusted = true;
+      }
     }
+
+    if (!adjusted) break;
   }
 
   return result;

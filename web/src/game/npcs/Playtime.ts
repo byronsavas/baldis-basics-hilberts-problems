@@ -25,7 +25,7 @@ export class Playtime extends NpcBase {
       // Back off during jump rope
       if (this.jumpRopeStarted) {
         const backDir = this.position.clone().sub(playerPos).normalize();
-        this.position.add(backDir.multiplyScalar(10));
+        this.applyMove(backDir.multiplyScalar(10));
         this.speed = 0;
         this.playCool = 15;
         this.jumpRopeStarted = false;
