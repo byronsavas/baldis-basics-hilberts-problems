@@ -109,6 +109,9 @@ export class SFXPlayer {
   ];
   private static quoteAudio: HTMLAudioElement | null = null;
   private static playtimeAudio: HTMLAudioElement | null = null;
+  private static learnMusicAudio: HTMLAudioElement | null = null;
+  private static correctAnswerAudio: HTMLAudioElement | null = null;
+  private static wrongAnswerAudio: HTMLAudioElement | null = null;
 
   static playPlaytimeMusic(volume = 0.5) {
     this.stopPlaytimeMusic();
@@ -147,15 +150,48 @@ export class SFXPlayer {
   }
 
   static playLearnMusic() {
-    this.play('/audio/LearnNew.wav', 0.4);
+    this.stopLearnMusic();
+    this.learnMusicAudio = new Audio('/audio/LearnNew.wav');
+    this.learnMusicAudio.loop = true;
+    this.learnMusicAudio.volume = audioSettings.scaledSfx(0.4);
+    this.learnMusicAudio.play().catch(() => {});
+  }
+
+  static stopLearnMusic() {
+    if (!this.learnMusicAudio) return;
+    const audio = this.learnMusicAudio;
+    this.learnMusicAudio = null;
+    audio.loop = false;
+    audio.pause();
+    audio.currentTime = 0;
+  }
+
+  private static playMathStinger(
+    slot: 'correctAnswerAudio' | 'wrongAnswerAudio',
+    path: string,
+    volume: number,
+  ) {
+    const current = this[slot];
+    if (current) {
+      current.pause();
+      current.currentTime = 0;
+    }
+
+    const audio = new Audio(path);
+    audio.volume = audioSettings.scaledSfx(volume);
+    audio.onended = () => {
+      if (this[slot] === audio) this[slot] = null;
+    };
+    this[slot] = audio;
+    audio.play().catch(() => {});
   }
 
   static playCorrectAnswer() {
-    this.play('/audio/LearnNew_Q1.wav', 0.5);
+    this.playMathStinger('correctAnswerAudio', '/audio/LearnNew_Q1.wav', 0.5);
   }
 
   static playWrongAnswer() {
-    this.play('/audio/LearnNew_Q2.wav', 0.5);
+    this.playMathStinger('wrongAnswerAudio', '/audio/LearnNew_Q2.wav', 0.5);
   }
 
   static playIntro() {

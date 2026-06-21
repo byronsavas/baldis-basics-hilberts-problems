@@ -70,8 +70,6 @@ export class GameController {
   learningActive = false;
   gameOverDelay = 0.5;
 
-  private mouseReleased = false;
-  private ignoreNextEscape = false;
   private wasJumpRoping = false;
   private canvas: HTMLCanvasElement | null = null;
   private onCanvasClick = () => {
@@ -118,8 +116,6 @@ export class GameController {
     this.gamePaused = false;
     this.baldiWasNear = false;
     this.baldiQuoteCooldown = 0;
-    this.mouseReleased = false;
-    this.ignoreNextEscape = false;
     this.wasJumpRoping = false;
     localStorage.setItem('CurrentMode', mode);
 
@@ -182,17 +178,6 @@ export class GameController {
     optionsMenuUI.onBack = () => {
       optionsMenuUI.hide();
       this.pauseMenuUI.show();
-    };
-
-    // First Escape releases the mouse; second Escape pauses the game
-    inputManager.onPointerLockLost = () => {
-      if (!this.gamePaused && !this.player.gameOver) {
-        this.mouseReleased = true;
-        this.ignoreNextEscape = true;
-      }
-    };
-    inputManager.onPointerLockGained = () => {
-      this.mouseReleased = false;
     };
 
     this.canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
@@ -513,6 +498,7 @@ export class GameController {
           this.failedNotebooks++;
         }
       },
+      onClose: () => { SFXPlayer.stopLearnMusic(); },
       onComplete: () => {
         this.deactivateLearningGame();
       },
@@ -790,7 +776,6 @@ export class GameController {
 
   pauseGame() {
     this.gamePaused = true;
-    this.mouseReleased = false;
     gameLoop.setTimeScale(0);
     this.pauseMenuUI.show();
     this.schoolMusic.suspend();
@@ -799,21 +784,12 @@ export class GameController {
   }
 
   private handlePauseInput() {
-    if (!inputManager.isKeyDown('Escape')) return;
-
-    if (this.ignoreNextEscape) {
-      this.ignoreNextEscape = false;
-      return;
-    }
-
-    if (this.mouseReleased && !this.gamePaused) {
-      this.pauseGame();
-    }
+    if (!inputManager.getActionDown(InputAction.Pause) || this.gamePaused) return;
+    this.pauseGame();
   }
 
   unpauseGame() {
     this.gamePaused = false;
-    this.mouseReleased = false;
     gameLoop.setTimeScale(1);
     this.pauseMenuUI.hide();
     optionsMenuUI.hide();
@@ -824,7 +800,6 @@ export class GameController {
 
   exitGame() {
     this.gamePaused = false;
-    this.mouseReleased = false;
     gameLoop.setTimeScale(1);
     this.pauseMenuUI.hide();
     optionsMenuUI.hide();
@@ -836,6 +811,7 @@ export class GameController {
     this.schoolMusic.stop();
     this.spookyMusic.stop();
     SFXPlayer.stopPlaytimeMusic();
+    SFXPlayer.stopLearnMusic();
     this.hud.hide();
     this.pauseMenuUI.hide();
     optionsMenuUI.hide();

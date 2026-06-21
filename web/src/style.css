@@ -59,6 +59,8 @@ body {
 /* Warning screen */
 #warning-screen {
   background: #000;
+  position: relative;
+  cursor: pointer;
 }
 
 .warning-content {
@@ -90,8 +92,10 @@ body {
 }
 
 .warning-sound-off {
-  display: block;
-  margin: 24px auto 0;
+  position: absolute;
+  left: 50%;
+  bottom: 8vh;
+  transform: translateX(-50%);
   font-family: inherit;
   font-size: 20px;
   color: #aaa;
@@ -443,6 +447,12 @@ body {
   text-align: left;
 }
 
+#math-question-panel.hilbert-mode {
+  min-height: 148px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
 #math-problem-label {
   font-size: 15px;
   font-weight: bold;
@@ -459,10 +469,27 @@ body {
 }
 
 #hilbert-problem-text {
-  font-size: 13px;
   font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.35;
+  line-height: 1.4;
+}
+
+.hilbert-title {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: normal;
+  margin-bottom: 8px;
+}
+
+.hilbert-statement {
+  font-size: 13px;
   font-style: italic;
+  margin-bottom: 10px;
+}
+
+.hilbert-prompt {
+  font-size: 13px;
+  font-style: normal;
+  font-weight: bold;
 }
 
 #math-answer-panel {

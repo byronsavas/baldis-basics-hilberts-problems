@@ -3,6 +3,7 @@ import { inputManager } from '../../engine/InputManager';
 export interface MathGameCallbacks {
   onCorrect(): void;
   onWrong(problemIndex: number): void;
+  onClose(): void;
   onComplete(): void;
 }
 
@@ -78,6 +79,7 @@ export class MathGameUI {
   private answerEl: HTMLInputElement;
   private okBtn: HTMLElement;
   private resultBoxes: NodeListOf<Element>;
+  private questionPanelEl: HTMLElement;
   private hilbertTextEl: HTMLElement;
 
   private problem = 0;
@@ -95,6 +97,7 @@ export class MathGameUI {
     this.answerEl = document.getElementById('math-answer') as HTMLInputElement;
     this.okBtn = document.getElementById('math-ok')!;
     this.resultBoxes = document.querySelectorAll('.result-box');
+    this.questionPanelEl = document.getElementById('math-question-panel')!;
     this.hilbertTextEl = document.getElementById('hilbert-problem-text')!;
 
     this.answerEl.type = 'text';
@@ -157,6 +160,7 @@ export class MathGameUI {
     this.focusRequestId++;
     this.awaitingNext = false;
     this.el.classList.remove('active');
+    this.callbacks?.onClose();
   }
 
   private getHilbertProblem(): HilbertProblem {
@@ -193,6 +197,7 @@ export class MathGameUI {
   }
 
   private showArithmeticMode() {
+    this.questionPanelEl.classList.remove('hilbert-mode');
     this.equationEl.classList.remove('hidden');
     this.hilbertTextEl.classList.add('hidden');
     this.answerEl.inputMode = 'numeric';
@@ -201,9 +206,13 @@ export class MathGameUI {
   }
 
   private showHilbertMode(hp: HilbertProblem) {
+    this.questionPanelEl.classList.add('hilbert-mode');
     this.equationEl.classList.add('hidden');
     this.hilbertTextEl.classList.remove('hidden');
-    this.hilbertTextEl.textContent = hp.prompt;
+    this.hilbertTextEl.innerHTML =
+      `<div class="hilbert-title">Hilbert's Problem #${hp.number}: ${hp.title}</div>` +
+      `<div class="hilbert-statement">${hp.statement}</div>` +
+      `<div class="hilbert-prompt">${hp.prompt}</div>`;
     this.answerEl.inputMode = 'text';
     this.answerEl.readOnly = false;
     this.answerEl.placeholder = '';
