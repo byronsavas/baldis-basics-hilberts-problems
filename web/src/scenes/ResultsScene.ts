@@ -18,9 +18,9 @@ export class ResultsScene implements GameScene {
     if (mode === 'endless') {
       const books = localStorage.getItem('CurrentBooks') || '0';
       const highBooks = localStorage.getItem('HighBooks') || '0';
-      scoreEl.textContent = `You collected ${books} notebooks! (High score: ${highBooks})`;
+      scoreEl.textContent = `You studied ${books} of Hilbert's problems! (High score: ${highBooks})`;
     } else {
-      scoreEl.textContent = 'You collected all 7 notebooks and escaped!';
+      scoreEl.textContent = 'You studied all 7 of Hilbert\'s problems and escaped!';
     }
 
     document.getElementById('btn-main-menu')!.onclick = () => {

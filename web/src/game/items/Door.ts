@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { AABB } from '../../engine/Physics';
 import { createDoorTexture } from '../Textures';
+import { SFXPlayer } from '../MusicGenerator';
 
 export class Door {
   position: THREE.Vector3;
@@ -63,12 +64,15 @@ export class Door {
 
   open() {
     if (this.lockTime > 0) return;
+    if (!this.isOpen && this.silentOpens <= 0) SFXPlayer.playDoorOpen();
+    if (this.silentOpens > 0) this.silentOpens--;
     this.isOpen = true;
     this.openTime = 3;
     this.doorMesh.material = this.openMaterial;
   }
 
   close() {
+    if (this.isOpen) SFXPlayer.playDoorClose();
     this.isOpen = false;
     this.doorMesh.material = this.closedMaterial;
   }

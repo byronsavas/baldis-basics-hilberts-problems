@@ -3,11 +3,13 @@ import { sceneManager } from '../engine/SceneManager';
 import { SFXPlayer } from '../game/MusicGenerator';
 
 const GAME_OVER_MESSAGES = [
-  '😵 You were caught!',
-  '📓 Study harder next time!',
-  '🏫 Detention forever!',
-  '📐 Math is important!',
+  '😵 Hilbert caught you!',
+  '📓 "Wir müssen wissen, wir werden wissen."',
+  '🏫 Back to Göttingen with you!',
+  '∞ The problems remain unsolved!',
   '❌ Game Over!',
+  '📐 Mathematics knows no races...',
+  '🤓 Hilbert is not amused.',
 ];
 
 export class GameOverScene implements GameScene {

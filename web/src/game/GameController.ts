@@ -218,7 +218,7 @@ export class GameController {
     const pickupItems = [
       { pos: new THREE.Vector3(30, 4, 50), itemId: ItemId.ZestyBar },
       { pos: new THREE.Vector3(150, 4, 50), itemId: ItemId.BSODA },
-      { pos: new THREE.Vector3(30, 4, 130), itemId: ItemId.BaldisLeastFavoriteTape },
+      { pos: new THREE.Vector3(30, 4, 130), itemId: ItemId.HilbertsLeastFavoriteTape },
       { pos: new THREE.Vector3(110, 4, 50), itemId: ItemId.WDNoSquee },
       { pos: new THREE.Vector3(70, 4, 130), itemId: ItemId.AlarmClock },
       { pos: new THREE.Vector3(150, 4, 130), itemId: ItemId.SafetyScissors },
@@ -247,7 +247,7 @@ export class GameController {
       [ItemId.Keys]: 0xcccc00,
       [ItemId.BSODA]: 0x0088ff,
       [ItemId.Quarter]: 0xaaaaaa,
-      [ItemId.BaldisLeastFavoriteTape]: 0x888888,
+      [ItemId.HilbertsLeastFavoriteTape]: 0x888888,
       [ItemId.AlarmClock]: 0xff0000,
       [ItemId.WDNoSquee]: 0x00aa00,
       [ItemId.SafetyScissors]: 0xcccccc,
@@ -436,7 +436,7 @@ export class GameController {
     this.schoolMusic.suspend();
     this.spookyMusic.suspend();
     SFXPlayer.playLearnMusic();
-    this.mathGameUI.open(impossibleMode, {
+    this.mathGameUI.open(impossibleMode, this.notebookCount - 1, {
       onCorrect: () => { SFXPlayer.playCorrectAnswer(); },
       onWrong: (problemIndex: number) => {
         SFXPlayer.playWrongAnswer();
@@ -523,7 +523,7 @@ export class GameController {
         break;
       }
 
-      case ItemId.BaldisLeastFavoriteTape:
+      case ItemId.HilbertsLeastFavoriteTape:
         if (this.baldi.active) {
           this.baldi.activateAntiHearing(30);
         }

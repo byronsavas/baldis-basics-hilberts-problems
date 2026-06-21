@@ -5,7 +5,7 @@ const ITEM_NAMES = [
   'Keys',
   'BSODA',
   'Quarter',
-  "Baldi's Least Favorite Tape",
+  "Hilbert's Least Favorite Tape",
   'Alarm Clock',
   'WD-NoSquee',
   'Safety Scissors',

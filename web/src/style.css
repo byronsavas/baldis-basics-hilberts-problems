@@ -286,17 +286,18 @@ body {
   min-width: 400px;
 }
 
-#baldi-face {
+#hilbert-face {
   width: 120px;
   height: 120px;
-  background: #8B6914;
+  background: #3a3a5c;
   border-radius: 50%;
-  margin: 0 auto 20px;
+  margin: 0 auto 10px;
   position: relative;
+  border: 3px solid #cca050;
 }
 
-#baldi-face::after {
-  content: '😐';
+#hilbert-face::after {
+  content: '🤓';
   font-size: 80px;
   position: absolute;
   top: 50%;
@@ -304,9 +305,31 @@ body {
   transform: translate(-50%, -50%);
 }
 
+#hilbert-notebook-title {
+  font-size: 16px;
+  color: #cca050;
+  margin-bottom: 16px;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+#hilbert-problem-text {
+  font-size: 18px;
+  color: #ffe0a0;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid #886622;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  max-width: 500px;
+  line-height: 1.5;
+  font-style: italic;
+  text-align: left;
+}
+
 #math-problem {
   font-size: 36px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -314,14 +337,18 @@ body {
 }
 
 #math-answer {
-  width: 120px;
+  width: 200px;
   font-size: 28px;
   text-align: center;
   font-family: inherit;
   border: 2px solid #ff0;
   background: #000;
   color: #fff;
-  padding: 4px;
+  padding: 4px 8px;
+  margin-bottom: 12px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #math-ok {

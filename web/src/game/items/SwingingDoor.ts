@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { AABB } from '../../engine/Physics';
 import { createSwingDoorTexture } from '../Textures';
+import { SFXPlayer } from '../MusicGenerator';
 
 export class SwingingDoor {
   position: THREE.Vector3;
@@ -61,12 +62,14 @@ export class SwingingDoor {
 
   open() {
     if (this.isLocked) return;
+    if (!this.isOpen) SFXPlayer.playDoorOpen();
     this.isOpen = true;
     this.openTime = 2;
     this.doorMesh.material = this.openMaterial;
   }
 
   close() {
+    if (this.isOpen) SFXPlayer.playDoorClose();
     this.isOpen = false;
     if (this.isLocked) {
       this.doorMesh.material = this.lockedMaterial;
