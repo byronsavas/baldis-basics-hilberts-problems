@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Level Editor - Baldi's Basics: Hilbert's Problems</title>
+    <link rel="stylesheet" href="/src/editor/editor.css" />
+  </head>
+  <body>
+    <div id="editor-app">
+      <header class="editor-header">
+        <h1>Level Editor</h1>
+        <div class="header-actions">
+          <button id="btn-new" type="button">New</button>
+          <button id="btn-load-default" type="button">Load Default</button>
+          <label class="file-btn">
+            Import JSON
+            <input id="import-input" type="file" accept=".json,application/json" hidden />
+          </label>
+          <button id="btn-export" type="button">Export JSON</button>
+        </div>
+      </header>
+
+      <div class="editor-body">
+        <aside class="editor-sidebar">
+          <label class="field">
+            Level name
+            <input id="level-name" type="text" value="Untitled Level" />
+          </label>
+
+          <div class="tool-section">
+            <h2>Tools</h2>
+            <div id="tool-buttons" class="tool-buttons"></div>
+          </div>
+
+          <label class="field checkbox-field">
+            <input id="door-horizontal" type="checkbox" checked />
+            Door horizontal orientation
+          </label>
+
+          <div class="info-panel">
+            <div id="cursor-info">Row: -, Col: -</div>
+            <div id="counts-info"></div>
+          </div>
+
+          <div class="legend">
+            <h2>Legend</h2>
+            <ul id="legend-list"></ul>
+          </div>
+        </aside>
+
+        <main class="editor-main">
+          <div id="grid-wrap">
+            <div id="grid" class="grid"></div>
+          </div>
+        </main>
+      </div>
+
+      <div id="status" class="status"></div>
+    </div>
+
+    <script type="module" src="/src/editor/main.ts"></script>
+  </body>
+</html>

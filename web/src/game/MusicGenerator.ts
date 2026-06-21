@@ -102,11 +102,32 @@ export class SpookyMusic {
 /** One-shot audio helper for sound effects */
 export class SFXPlayer {
   private static cache = new Map<string, HTMLAudioElement>();
+  private static hilbertQuotes = [
+    '/audio/baldi/hilbert-quotes/we-must-know.wav',
+    '/audio/baldi/hilbert-quotes/enough-imagination.wav',
+    '/audio/baldi/hilbert-quotes/the-infinite.wav',
+  ];
+  private static quoteAudio: HTMLAudioElement | null = null;
 
   static play(path: string, volume = 0.5) {
     const audio = new Audio(path);
     audio.volume = audioSettings.scaledSfx(volume);
     audio.play().catch(() => {});
+  }
+
+  static playRandomHilbertQuote(volume = 0.7): boolean {
+    if (this.quoteAudio && !this.quoteAudio.paused && !this.quoteAudio.ended) {
+      return false;
+    }
+
+    const path = this.hilbertQuotes[Math.floor(Math.random() * this.hilbertQuotes.length)];
+    this.quoteAudio = new Audio(path);
+    this.quoteAudio.volume = audioSettings.scaledSfx(volume);
+    this.quoteAudio.onended = () => {
+      this.quoteAudio = null;
+    };
+    this.quoteAudio.play().catch(() => {});
+    return true;
   }
 
   static playLearnMusic() {
@@ -123,6 +144,10 @@ export class SFXPlayer {
 
   static playIntro() {
     this.play('/audio/Mus_Intro.wav', 0.6);
+  }
+
+  static playBaldiIntro() {
+    this.play('/audio/baldi/hi-im-david-hilbert.wav', 0.7);
   }
 
   static playWin() {

@@ -79,7 +79,6 @@ export class MathGameUI {
 
   private problem = 0;
   private solution = 0;
-  private impossibleMode = false;
   private notebookIndex = 0;
   private callbacks: MathGameCallbacks | null = null;
   private problemsWrong = 0;
@@ -110,8 +109,7 @@ export class MathGameUI {
     });
   }
 
-  open(impossibleMode: boolean, notebookIndex: number, callbacks: MathGameCallbacks) {
-    this.impossibleMode = impossibleMode;
+  open(notebookIndex: number, callbacks: MathGameCallbacks) {
     this.notebookIndex = notebookIndex;
     this.callbacks = callbacks;
     this.problem = 0;
@@ -137,7 +135,7 @@ export class MathGameUI {
   }
 
   private isShowingHilbertProblem(): boolean {
-    return this.problem === 3 && this.impossibleMode;
+    return this.problem === 3;
   }
 
   private newProblem() {
@@ -145,7 +143,7 @@ export class MathGameUI {
     this.answerEl.value = '';
     this.answerEl.focus();
 
-    if (this.problem <= 2 || !this.impossibleMode) {
+    if (this.problem <= 2) {
       this.countEl.textContent = `Problem ${this.problem} of 3`;
       this.showArithmeticMode();
 

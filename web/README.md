@@ -48,6 +48,49 @@ npm run dev   # http://localhost:5173
 | Q | Look behind |
 | Escape | Pause |
 
+## Level Editor
+
+Open the editor at [http://localhost:5173/editor.html](http://localhost:5173/editor.html) while the dev server is running.
+
+### Tools
+
+| Tool | Action |
+|------|--------|
+| Wall / Hall / Room | Paint grid cells |
+| Player Spawn | Set spawn point (only one) |
+| Notebook / Exit / Door / Swinging Door | Toggle placement on a cell (click again to remove) |
+| Eraser | Right-click or select Eraser to clear a cell back to wall and remove markers |
+| Door horizontal orientation | Checkbox controls door plane orientation for door tools |
+
+### Export / import
+
+- **Export JSON** downloads the current level as a `.json` file
+- **Import JSON** loads a level file into the editor
+- **Load Default** restores the built-in school layout
+
+### Using a custom level in the game
+
+Replace [`src/levels/default.json`](src/levels/default.json) with your exported file (or copy it there under a new name and update the import in `GameController.ts`). The game loads `default.json` at startup.
+
+### Level file format
+
+```json
+{
+  "version": 1,
+  "name": "My Level",
+  "width": 19,
+  "height": 19,
+  "cellSize": 10,
+  "grid": [[0, 1, 2, ...]],
+  "playerSpawn": [row, col],
+  "notebooks": [[row, col]],
+  "exits": [[row, col]],
+  "doors": [{ "row": 1, "col": 4, "swinging": false, "horizontal": true }]
+}
+```
+
+Grid values: `0` = wall, `1` = hall, `2` = room.
+
 ## Architecture
 
 ```
@@ -58,6 +101,8 @@ src/
     items/      # Item system, notebooks, doors, BSODA, alarm clock, etc.
     ui/         # HUD, math game (Hilbert problems), pause menu, jump rope
   scenes/       # Warning, Main Menu, School (story/endless), Game Over, Results
+  levels/       # JSON level data (default.json)
+  editor/       # Standalone level editor page
 ```
 
 ## Game Mechanics

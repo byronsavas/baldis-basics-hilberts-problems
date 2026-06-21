@@ -6,6 +6,8 @@ import { sceneManager } from '../engine/SceneManager';
 import { checkTrigger } from '../engine/Physics';
 import { pathfinder } from './Pathfinding';
 import { SchoolMap } from './Map';
+import defaultLevelData from '../levels/default.json';
+import { validateLevel } from './LevelData';
 import { Player } from './Player';
 import { GameCamera } from './Camera';
 import { Baldi } from './npcs/Baldi';
@@ -79,9 +81,13 @@ export class GameController {
   private itemPickups: THREE.Mesh[] = [];
   private schoolMusic: MusicPlayer;
   private spookyMusic: SpookyMusic;
+  private baldiWasNear = false;
+  private baldiQuoteCooldown = 0;
+  private static readonly BALDI_QUOTE_RADIUS = 15;
+  private static readonly BALDI_QUOTE_COOLDOWN = 25;
 
   constructor() {
-    this.map = new SchoolMap();
+    this.map = new SchoolMap(validateLevel(defaultLevelData));
     this.player = new Player();
     this.camera = new GameCamera();
     this.items = new ItemSystem();
@@ -109,6 +115,8 @@ export class GameController {
   init(mode: string) {
     this.mode = mode;
     this.gamePaused = false;
+    this.baldiWasNear = false;
+    this.baldiQuoteCooldown = 0;
     this.mouseReleased = false;
     this.ignoreNextEscape = false;
     localStorage.setItem('CurrentMode', mode);
@@ -194,6 +202,7 @@ export class GameController {
     // Resume audio context and start school music
     audioManager.resume();
     this.schoolMusic.start();
+    SFXPlayer.playBaldiIntro();
   }
 
   private setupNPCs() {
@@ -381,6 +390,7 @@ export class GameController {
 
     // Check NPC triggers
     this.checkNpcTriggers();
+    this.updateBaldiProximityQuotes(dt, pp);
 
     // Jump rope UI
     this.jumpRopeUI.update(dt);
@@ -459,13 +469,12 @@ export class GameController {
       localStorage.setItem('CurrentBooks', String(this.notebookCount));
     }
 
-    // Open math game
+    // Open math game (problems 1–2: arithmetic, problem 3: unsolved Hilbert problem)
     this.learningActive = true;
-    const impossibleMode = this.spoopMode;
     this.schoolMusic.suspend();
     this.spookyMusic.suspend();
     SFXPlayer.playLearnMusic();
-    this.mathGameUI.open(impossibleMode, this.notebookCount - 1, {
+    this.mathGameUI.open(this.notebookCount - 1, {
       onCorrect: () => { SFXPlayer.playCorrectAnswer(); },
       onWrong: (problemIndex: number) => {
         SFXPlayer.playWrongAnswer();
@@ -637,6 +646,25 @@ export class GameController {
         npc.syncMesh();
       }
     }
+  }
+
+  private updateBaldiProximityQuotes(dt: number, pp: THREE.Vector3) {
+    if (this.baldiQuoteCooldown > 0) {
+      this.baldiQuoteCooldown -= dt;
+    }
+
+    if (!this.baldi.active || this.learningActive || this.player.gameOver) {
+      this.baldiWasNear = false;
+      return;
+    }
+
+    const nearBaldi = checkTrigger(pp, this.baldi.position, GameController.BALDI_QUOTE_RADIUS);
+    if (nearBaldi && !this.baldiWasNear && this.baldiQuoteCooldown <= 0) {
+      if (SFXPlayer.playRandomHilbertQuote()) {
+        this.baldiQuoteCooldown = GameController.BALDI_QUOTE_COOLDOWN;
+      }
+    }
+    this.baldiWasNear = nearBaldi;
   }
 
   private checkNpcTriggers() {
