@@ -4,17 +4,9 @@ A browser-based TypeScript port of Baldi's Basics, re-themed around David Hilber
 
 ## Theme
 
-David Hilbert takes the role of Baldi. Each of the 7 notebooks in the game is themed around one of Hilbert's unsolved problems from his famous 1900 list:
+David Hilbert takes the role of Baldi. There are **23 notebooks**, one for each of Hilbert's problems from his famous 1900 list.
 
-1. **Problem #8** — The Riemann Hypothesis
-2. **Problem #1** — The Continuum Hypothesis
-3. **Problem #2** — Consistency of Arithmetic
-4. **Problem #6** — Axiomatization of Physics
-5. **Problem #16** — Topology of Algebraic Curves
-6. **Problem #15** — Schubert's Enumerative Calculus
-7. **Problem #23** — Calculus of Variations
-
-The first two questions in each notebook are solvable arithmetic. The third question presents the actual unsolved Hilbert problem — which genuinely has no known answer.
+The first two questions in each notebook are solvable arithmetic. The third question presents the actual Hilbert problem — which genuinely has no known closed-form classroom answer.
 
 ## Tech Stack
 
@@ -107,12 +99,12 @@ src/
 
 ## Game Mechanics
 
-- **7 notebooks** to collect, each featuring one of Hilbert's unsolved problems
+- **23 notebooks** to collect, each featuring one of Hilbert's problems
 - **Hilbert** chases with increasing speed based on wrong answers
 - **Principal** detains you for rule-breaking
 - **Playtime** forces you into a jump rope minigame
 - **First Prize** pushes you down hallways
 - **It's a Bully** steals your items
-- **Arts & Crafters** teleports you to Hilbert after 7 notebooks
+- **Arts & Crafters** teleports you to Hilbert after all 23 notebooks
 - **Gotta Sweep** sweeps everyone away periodically
 - **11 usable items**: Zesty Bar, Door Lock, Keys, BSODA, Quarter, Hilbert's Least Favorite Tape, Alarm Clock, WD-NoSquee, Safety Scissors, Boots, Teleporter

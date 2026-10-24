@@ -21,12 +21,13 @@ class AudioSettings {
 
   scaledMusic(base: number): number {
     if (this.sessionMuted) return 0;
-    return base * this.musicVolume;
+    // HTMLAudioElement.volume must be in [0, 1] or it throws IndexSizeError
+    return clamp(base * this.musicVolume, 0, 1);
   }
 
   scaledSfx(base: number): number {
     if (this.sessionMuted) return 0;
-    return base * this.sfxVolume;
+    return clamp(base * this.sfxVolume, 0, 1);
   }
 
   startMuted() {

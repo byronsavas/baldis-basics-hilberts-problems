@@ -14,13 +14,13 @@ class SceneManager {
   }
 
   loadScene(name: string) {
-    if (this.currentScene) {
-      this.currentScene.onExit();
-    }
     const next = this.scenes.get(name);
     if (!next) {
       console.error(`Scene "${name}" not found`);
       return;
+    }
+    if (this.currentScene) {
+      this.currentScene.onExit();
     }
     this.currentScene = next;
     this.currentScene.onEnter();

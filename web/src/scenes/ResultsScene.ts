@@ -20,7 +20,7 @@ export class ResultsScene implements GameScene {
       const highBooks = localStorage.getItem('HighBooks') || '0';
       scoreEl.textContent = `You studied ${books} of Hilbert's problems! (High score: ${highBooks})`;
     } else {
-      scoreEl.textContent = 'You studied all 7 of Hilbert\'s problems and escaped!';
+      scoreEl.textContent = 'You studied all 23 of Hilbert\'s problems and escaped!';
     }
 
     document.getElementById('btn-main-menu')!.onclick = () => {

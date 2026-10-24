@@ -29,6 +29,7 @@ import { PauseMenuUI } from './ui/PauseMenu';
 import { optionsMenuUI } from './ui/OptionsMenu';
 import { JumpRopeUI } from './ui/JumpRope';
 import { MusicPlayer, SpookyMusic, SFXPlayer } from './MusicGenerator';
+import { TOTAL_NOTEBOOKS } from './constants';
 
 export class GameController {
   scene = new THREE.Scene();
@@ -530,8 +531,8 @@ export class GameController {
       this.baldi.active = true;
     }
 
-    // At 7 notebooks, activate finale
-    if (this.notebookCount === 7 && this.mode === 'story') {
+    // At all notebooks, activate finale
+    if (this.notebookCount >= TOTAL_NOTEBOOKS && this.mode === 'story') {
       this.activateFinaleMode();
     }
   }
@@ -748,17 +749,13 @@ export class GameController {
   }
 
   private checkExits() {
-    if (this.mode === 'story' && this.notebookCount >= 7 && this.finaleMode) {
+    if (this.mode === 'story' && this.notebookCount >= TOTAL_NOTEBOOKS && this.finaleMode) {
       for (const exitPos of this.map.exitPositions) {
         if (checkTrigger(this.player.position, exitPos, 8)) {
           this.exitsReached++;
           if (this.exitsReached >= 3) {
             SFXPlayer.playWin();
-            if (this.failedNotebooks >= 7) {
-              sceneManager.loadScene('secret');
-            } else {
-              sceneManager.loadScene('results');
-            }
+            sceneManager.loadScene('results');
             return;
           }
         }

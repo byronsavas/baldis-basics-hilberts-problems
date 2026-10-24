@@ -1,3 +1,5 @@
+import { TOTAL_NOTEBOOKS } from '../constants';
+
 const ITEM_NAMES = [
   '',
   'Zesty Bar',
@@ -42,7 +44,7 @@ export class HUD {
     if (mode === 'endless') {
       this.notebookEl.textContent = `Notebooks: ${count}`;
     } else {
-      this.notebookEl.textContent = `Notebooks: ${count}/7`;
+      this.notebookEl.textContent = `Notebooks: ${count}/${TOTAL_NOTEBOOKS}`;
     }
   }
 

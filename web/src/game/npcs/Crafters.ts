@@ -2,12 +2,13 @@ import * as THREE from 'three';
 import { NpcBase } from './NpcBase';
 import type { Player } from '../Player';
 import type { Baldi } from './Baldi';
+import { TOTAL_NOTEBOOKS } from '../constants';
 
 export class Crafters extends NpcBase {
   angry = false;
   gettingAngry = false;
   anger = 0;
-  notebooksRequired = 7;
+  notebooksRequired = TOTAL_NOTEBOOKS;
 
   baldiTeleportPoint = new THREE.Vector3();
   playerTeleportPoint = new THREE.Vector3();

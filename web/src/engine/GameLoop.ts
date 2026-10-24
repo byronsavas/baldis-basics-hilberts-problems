@@ -73,7 +73,11 @@ class GameLoop {
     }
 
     for (const cb of this.updateCallbacks) {
-      cb(scaledDt);
+      try {
+        cb(scaledDt);
+      } catch (err) {
+        console.error('Game update error:', err);
+      }
     }
   };
 }

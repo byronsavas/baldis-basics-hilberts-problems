@@ -16,7 +16,12 @@ export class Pathfinder {
     this.waypoints = wps;
   }
 
+  private isValidId(id: number): boolean {
+    return id >= 0 && id < this.waypoints.length;
+  }
+
   findNearestWaypoint(pos: THREE.Vector3): number {
+    if (this.waypoints.length === 0) return 0;
     let best = 0;
     let bestDist = Infinity;
     for (let i = 0; i < this.waypoints.length; i++) {
@@ -30,20 +35,24 @@ export class Pathfinder {
   }
 
   findNearestHallwayWaypoint(pos: THREE.Vector3): number {
+    if (this.waypoints.length === 0) return 0;
     let best = 0;
     let bestDist = Infinity;
+    let found = false;
     for (let i = 0; i < this.waypoints.length; i++) {
       if (!this.waypoints[i].isHallway) continue;
+      found = true;
       const d = pos.distanceTo(this.waypoints[i].position);
       if (d < bestDist) {
         bestDist = d;
         best = i;
       }
     }
-    return best;
+    return found ? best : this.findNearestWaypoint(pos);
   }
 
   getRandomWaypoint(): number {
+    if (this.waypoints.length === 0) return 0;
     return Math.floor(Math.random() * this.waypoints.length);
   }
 
@@ -55,6 +64,9 @@ export class Pathfinder {
   }
 
   getWaypointPosition(id: number): THREE.Vector3 {
+    if (!this.isValidId(id)) {
+      return this.waypoints[0]?.position.clone() ?? new THREE.Vector3();
+    }
     return this.waypoints[id].position.clone();
   }
 
@@ -63,10 +75,15 @@ export class Pathfinder {
    * Returns array of waypoint positions forming the path.
    */
   findPath(fromId: number, toId: number): THREE.Vector3[] {
+    if (this.waypoints.length === 0) return [];
+    if (!this.isValidId(fromId)) fromId = 0;
+    if (!this.isValidId(toId)) toId = 0;
     if (fromId === toId) return [this.waypoints[toId].position.clone()];
 
     const open = new Map<number, AStarNode>();
     const closed = new Set<number>();
+    // Keep every visited node so parent chains can be reconstructed
+    const nodes = new Map<number, AStarNode>();
 
     const startNode: AStarNode = {
       id: fromId,
@@ -77,6 +94,7 @@ export class Pathfinder {
     };
     startNode.f = startNode.g + startNode.h;
     open.set(fromId, startNode);
+    nodes.set(fromId, startNode);
 
     while (open.size > 0) {
       let current: AStarNode | null = null;
@@ -86,14 +104,14 @@ export class Pathfinder {
       if (!current) break;
 
       if (current.id === toId) {
-        return this.reconstructPath(current, open, closed, fromId);
+        return this.reconstructPath(current, nodes);
       }
 
       open.delete(current.id);
       closed.add(current.id);
 
       for (const neighborId of this.waypoints[current.id].neighbors) {
-        if (closed.has(neighborId)) continue;
+        if (closed.has(neighborId) || !this.isValidId(neighborId)) continue;
 
         const tentativeG =
           current.g +
@@ -110,6 +128,7 @@ export class Pathfinder {
           parent: current.id,
         };
         open.set(neighborId, node);
+        nodes.set(neighborId, node);
       }
     }
 
@@ -123,22 +142,15 @@ export class Pathfinder {
 
   private reconstructPath(
     endNode: AStarNode,
-    open: Map<number, AStarNode>,
-    _closed: Set<number>,
-    _startId: number,
+    nodes: Map<number, AStarNode>,
   ): THREE.Vector3[] {
-    const allNodes = new Map<number, AStarNode>(open);
-
     const path: THREE.Vector3[] = [];
     let current: AStarNode | null | undefined = endNode;
-    while (current) {
+    let guard = 0;
+    while (current && guard++ < this.waypoints.length + 2) {
       path.unshift(this.waypoints[current.id].position.clone());
       if (current.parent === null) break;
-      current = allNodes.get(current.parent);
-      if (!current) {
-        // Might be in closed set nodes we didn't store - just break
-        break;
-      }
+      current = nodes.get(current.parent);
     }
     return path;
   }

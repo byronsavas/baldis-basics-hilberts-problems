@@ -17,13 +17,6 @@ interface HilbertProblem {
 
 const HILBERT_PROBLEMS: HilbertProblem[] = [
   {
-    number: 8,
-    title: "The Riemann Hypothesis",
-    statement:
-      "All non-trivial zeros of the analytical continuation of the Riemann zeta function ζ(s) have a real part equal to ½.",
-    prompt: "Find a non-trivial zero of ζ(s) with Re(s) ≠ ½:",
-  },
-  {
     number: 1,
     title: "The Continuum Hypothesis",
     statement:
@@ -38,11 +31,95 @@ const HILBERT_PROBLEMS: HilbertProblem[] = [
     prompt: "Enter a proof of consistency for PA:",
   },
   {
+    number: 3,
+    title: "Scissor Congruence",
+    statement:
+      "Given any two polyhedra of equal volume, can one be cut into finitely many polyhedral pieces and reassembled into the other?",
+    prompt: "Dehn invariant for all cases =",
+  },
+  {
+    number: 4,
+    title: "Straight Line as Shortest Distance",
+    statement:
+      "Construct geometries in which the straight line is defined as the shortest distance between two points, and enumerate them.",
+    prompt: "Complete list of such geometries =",
+  },
+  {
+    number: 5,
+    title: "Lie Groups Without Differentiability",
+    statement:
+      "Can Lie's concept of a continuous transformation group be developed without assuming differentiability of the defining functions?",
+    prompt: "Proof without differentiability =",
+  },
+  {
     number: 6,
     title: "Axiomatization of Physics",
     statement:
       "Give a mathematical treatment of the axioms of physics, in particular probability and mechanics.",
     prompt: "Enter the complete axiom set:",
+  },
+  {
+    number: 7,
+    title: "Irrationality and Transcendence",
+    statement:
+      "Is a^b transcendental whenever a is algebraic ≠ 0,1 and b is irrational algebraic?",
+    prompt: "Prove for all such a, b:",
+  },
+  {
+    number: 8,
+    title: "The Riemann Hypothesis",
+    statement:
+      "All non-trivial zeros of the analytical continuation of the Riemann zeta function ζ(s) have a real part equal to ½.",
+    prompt: "Find a non-trivial zero of ζ(s) with Re(s) ≠ ½:",
+  },
+  {
+    number: 9,
+    title: "Most General Reciprocity Law",
+    statement:
+      "Prove the most general law of reciprocity in any number field.",
+    prompt: "General reciprocity formula =",
+  },
+  {
+    number: 10,
+    title: "Decidability of Diophantine Equations",
+    statement:
+      "Find an algorithm to determine whether a given Diophantine equation has an integer solution.",
+    prompt: "Decision procedure =",
+  },
+  {
+    number: 11,
+    title: "Quadratic Forms with Algebraic Coefficients",
+    statement:
+      "Classify quadratic forms with arbitrary algebraic numerical coefficients.",
+    prompt: "Complete classification =",
+  },
+  {
+    number: 12,
+    title: "Kronecker–Weber Extensions",
+    statement:
+      "Extend the Kronecker–Weber theorem on Abelian extensions of the rationals to any algebraic number field.",
+    prompt: "General Abelian extension =",
+  },
+  {
+    number: 13,
+    title: "Seventh-Degree Equations",
+    statement:
+      "Show that the general equation of degree 7 cannot be solved using continuous functions of only two arguments.",
+    prompt: "Counterexample or proof =",
+  },
+  {
+    number: 14,
+    title: "Finiteness of Complete Function Systems",
+    statement:
+      "Prove the finiteness of certain complete systems of functions arising in invariant theory.",
+    prompt: "Finiteness proof =",
+  },
+  {
+    number: 15,
+    title: "Schubert's Enumerative Calculus",
+    statement:
+      "Establish a rigorous foundation for Schubert's enumerative calculus of intersections in algebraic geometry.",
+    prompt: "Rigorous intersection number =",
   },
   {
     number: 16,
@@ -52,11 +129,46 @@ const HILBERT_PROBLEMS: HilbertProblem[] = [
     prompt: "H(n) for all n =",
   },
   {
-    number: 15,
-    title: "Schubert's Enumerative Calculus",
+    number: 17,
+    title: "Representation by Squares",
     statement:
-      "Establish a rigorous foundation for Schubert's enumerative calculus of intersections in algebraic geometry.",
-    prompt: "Rigorous intersection number =",
+      "Can every non-negative rational function be written as a sum of squares of rational functions?",
+    prompt: "Universal representation =",
+  },
+  {
+    number: 18,
+    title: "Building Space from Congruent Polyhedra",
+    statement:
+      "Is there a polyhedron that tiles 3-space but only aperiodically? How many spheres can touch a given sphere?",
+    prompt: "Aperiodic tile / kissing number =",
+  },
+  {
+    number: 19,
+    title: "Analyticity of Variational Solutions",
+    statement:
+      "Are the solutions of regular problems in the calculus of variations always necessarily analytic?",
+    prompt: "Proof of analyticity =",
+  },
+  {
+    number: 20,
+    title: "General Boundary Value Problems",
+    statement:
+      "Has every variational problem a solution, given suitably generalized notions of solution and boundary conditions?",
+    prompt: "Existence theorem =",
+  },
+  {
+    number: 21,
+    title: "Existence of Linear DEs with Given Monodromy",
+    statement:
+      "Prove the existence of linear differential equations having a prescribed monodromy group.",
+    prompt: "Construction for all groups =",
+  },
+  {
+    number: 22,
+    title: "Uniformization by Automorphic Functions",
+    statement:
+      "Uniformize analytic relations by means of automorphic functions.",
+    prompt: "Uniformizing map =",
   },
   {
     number: 23,
@@ -282,7 +394,11 @@ export class MathGameUI {
         this.callbacks?.onComplete();
       }, 800);
     } else {
-      this.newProblem();
+      // Delay so double-submit / Enter+click races cannot skip a question
+      setTimeout(() => {
+        if (!this.el.classList.contains('active')) return;
+        this.newProblem();
+      }, 350);
     }
   }
 }

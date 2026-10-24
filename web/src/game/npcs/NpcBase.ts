@@ -19,6 +19,10 @@ export abstract class NpcBase {
   private readonly moveDir = new THREE.Vector3();
   private readonly stepMove = new THREE.Vector3();
   private readonly pathDir = new THREE.Vector3();
+  private readonly lastPathTarget = new THREE.Vector3();
+  private repathTimer = 0;
+  private static readonly REPATH_INTERVAL = 0.4;
+  private static readonly REPATH_MOVE_SQ = 16; // 4 units
 
   mesh: THREE.Group;
   protected spriteMesh: THREE.Mesh;
@@ -81,6 +85,16 @@ export abstract class NpcBase {
 
   setDestination(target: THREE.Vector3) {
     this.destination.copy(target);
+
+    // Throttle A*: chasing NPCs used to repath every frame and freeze the tab
+    const movedFar = this.lastPathTarget.distanceToSquared(target) > NpcBase.REPATH_MOVE_SQ;
+    if (this.path.length > 0 && this.repathTimer > 0 && !movedFar) {
+      this.path[this.path.length - 1].copy(target);
+      return;
+    }
+
+    this.repathTimer = NpcBase.REPATH_INTERVAL;
+    this.lastPathTarget.copy(target);
     const fromId = pathfinder.findNearestWaypoint(this.position);
     const toId = pathfinder.findNearestWaypoint(target);
     this.path = pathfinder.findPath(fromId, toId);
@@ -89,6 +103,7 @@ export abstract class NpcBase {
   }
 
   protected moveAlongPath(dt: number) {
+    if (this.repathTimer > 0) this.repathTimer -= dt;
     if (this.path.length === 0 || this.speed <= 0) return;
 
     const target = this.path[this.pathIndex];
