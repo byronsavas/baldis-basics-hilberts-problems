@@ -2,6 +2,8 @@
 
 ![Title screen](docs/title-screen.png)
 
+**[Play the game →](https://byronsavas.github.io/baldis-basics-hilberts-problems/)**
+
 A **fan-made parody** of [*Baldi's Basics in Education and Learning*](https://basically-games.itch.io/baldis-basics) where the school’s terrifying teacher isn’t Baldi — it’s the famous mathematician **[David Hilbert](https://en.wikipedia.org/wiki/David_Hilbert)**.
 
 Collect notebooks around the school and try to solve math problems. The easy ones are arithmetic. The hard ones are drawn from **Hilbert’s famous list of 23 problems**, posed at the [International Congress of Mathematicians in 1900](https://en.wikipedia.org/wiki/Hilbert%27s_problems) — many of which are still open, partially solved, or forever out of reach.
@@ -12,9 +14,8 @@ Can you find every notebook… and face all 23 of his problems?
 
 ## Play
 
-**GitHub Pages:** push to `main` and the site builds automatically. After enabling Pages (Settings → Pages → Source: **GitHub Actions**), the game is at:
-
-https://byronsavas.github.io/baldis-basics-hilberts-problems/
+Live on GitHub Pages: [byronsavas.github.io/baldis-basics-hilberts-problems](https://byronsavas.github.io/baldis-basics-hilberts-problems/)  
+(Pushes to `main` rebuild the site automatically once Pages is set to **GitHub Actions**.)
 
 **Locally:**
 
