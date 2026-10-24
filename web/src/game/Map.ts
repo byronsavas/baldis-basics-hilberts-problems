@@ -33,7 +33,6 @@ export class SchoolMap {
   private mapHeight: number;
 
   private wallMaterial = new THREE.MeshLambertMaterial({ map: createBrickTexture() });
-  private floorMaterial = new THREE.MeshLambertMaterial({ map: createFloorTexture() });
   private ceilingMaterial = new THREE.MeshLambertMaterial({ map: createCeilingTexture() });
   private hallFloorMaterial = new THREE.MeshLambertMaterial({ map: createHallFloorTexture() });
   private roomFloorMaterial = new THREE.MeshLambertMaterial({ map: createFloorTexture() });
@@ -76,6 +75,11 @@ export class SchoolMap {
   }
 
   private buildGeometry() {
+    const walls: { x: number; z: number }[] = [];
+    const hallFloors: { x: number; z: number }[] = [];
+    const roomFloors: { x: number; z: number }[] = [];
+    const ceilings: { x: number; z: number }[] = [];
+
     for (let row = 0; row < this.mapHeight; row++) {
       for (let col = 0; col < this.mapWidth; col++) {
         const cell = this.getCellType(row, col);
@@ -83,60 +87,80 @@ export class SchoolMap {
         const z = row * this.cellSize;
 
         if (cell === CellType.Wall) {
-          this.addWall(x, z);
+          walls.push({ x, z });
+          this.wallAABBs.push({
+            min: new THREE.Vector3(x, 0, z),
+            max: new THREE.Vector3(x + this.cellSize, WALL_HEIGHT, z + this.cellSize),
+          });
         } else {
-          const floorMat = cell === CellType.Hall ? this.hallFloorMaterial : this.roomFloorMaterial;
-          this.addFloorCeiling(x, z, floorMat);
+          if (cell === CellType.Hall) hallFloors.push({ x, z });
+          else roomFloors.push({ x, z });
+          ceilings.push({ x, z });
         }
       }
     }
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.4);
-    this.group.add(ambient);
+    this.addInstancedBoxes(walls, this.wallMaterial, 'walls', WALL_HEIGHT / 2, this.cellSize, WALL_HEIGHT, this.cellSize, this.wallMeshes);
+    this.addInstancedPlanes(hallFloors, this.hallFloorMaterial, 'hallFloors', FLOOR_Y, -Math.PI / 2, this.floorMeshes);
+    this.addInstancedPlanes(roomFloors, this.roomFloorMaterial, 'roomFloors', FLOOR_Y, -Math.PI / 2, this.floorMeshes);
+    this.addInstancedPlanes(ceilings, this.ceilingMaterial, 'ceilings', WALL_HEIGHT, Math.PI / 2, this.floorMeshes);
 
-    const lightPositions = [
-      [4, 4], [9, 4], [14, 4],
-      [4, 9], [9, 9], [14, 9],
-      [4, 14], [9, 14], [14, 14],
-    ];
-    for (const [col, row] of lightPositions) {
-      const light = new THREE.PointLight(0xffe8c0, 0.8, this.cellSize * 6);
-      light.position.set(
-        col * this.cellSize + this.cellSize / 2,
-        WALL_HEIGHT - 1,
-        row * this.cellSize + this.cellSize / 2,
-      );
-      this.group.add(light);
+    // Cheap lighting instead of many PointLights (was a major GPU cost)
+    this.group.add(new THREE.AmbientLight(0xffffff, 0.75));
+    this.group.add(new THREE.HemisphereLight(0xfff2e0, 0x6a5a4a, 0.45));
+  }
+
+  private addInstancedBoxes(
+    cells: { x: number; z: number }[],
+    material: THREE.Material,
+    name: string,
+    y: number,
+    sizeX: number,
+    sizeY: number,
+    sizeZ: number,
+    bucket: THREE.Mesh[],
+  ) {
+    if (cells.length === 0) return;
+    const geo = new THREE.BoxGeometry(sizeX, sizeY, sizeZ);
+    const mesh = new THREE.InstancedMesh(geo, material, cells.length);
+    mesh.name = name;
+    mesh.frustumCulled = true;
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < cells.length; i++) {
+      const { x, z } = cells[i];
+      dummy.position.set(x + this.cellSize / 2, y, z + this.cellSize / 2);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
     }
-  }
-
-  private addWall(x: number, z: number) {
-    const geo = new THREE.BoxGeometry(this.cellSize, WALL_HEIGHT, this.cellSize);
-    const mesh = new THREE.Mesh(geo, this.wallMaterial);
-    mesh.position.set(x + this.cellSize / 2, WALL_HEIGHT / 2, z + this.cellSize / 2);
-    mesh.name = 'wall';
-    mesh.updateMatrixWorld(true);
+    mesh.instanceMatrix.needsUpdate = true;
     this.group.add(mesh);
-    this.wallMeshes.push(mesh);
-
-    this.wallAABBs.push({
-      min: new THREE.Vector3(x, 0, z),
-      max: new THREE.Vector3(x + this.cellSize, WALL_HEIGHT, z + this.cellSize),
-    });
+    bucket.push(mesh);
   }
 
-  private addFloorCeiling(x: number, z: number, mat: THREE.Material) {
-    const floorGeo = new THREE.PlaneGeometry(this.cellSize, this.cellSize);
-    const floor = new THREE.Mesh(floorGeo, mat);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.set(x + this.cellSize / 2, FLOOR_Y, z + this.cellSize / 2);
-    this.group.add(floor);
-    this.floorMeshes.push(floor);
-
-    const ceiling = new THREE.Mesh(floorGeo.clone(), this.ceilingMaterial);
-    ceiling.rotation.x = Math.PI / 2;
-    ceiling.position.set(x + this.cellSize / 2, WALL_HEIGHT, z + this.cellSize / 2);
-    this.group.add(ceiling);
+  private addInstancedPlanes(
+    cells: { x: number; z: number }[],
+    material: THREE.Material,
+    name: string,
+    y: number,
+    rotX: number,
+    bucket: THREE.Mesh[],
+  ) {
+    if (cells.length === 0) return;
+    const geo = new THREE.PlaneGeometry(this.cellSize, this.cellSize);
+    const mesh = new THREE.InstancedMesh(geo, material, cells.length);
+    mesh.name = name;
+    mesh.frustumCulled = true;
+    const dummy = new THREE.Object3D();
+    dummy.rotation.x = rotX;
+    for (let i = 0; i < cells.length; i++) {
+      const { x, z } = cells[i];
+      dummy.position.set(x + this.cellSize / 2, y, z + this.cellSize / 2);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    this.group.add(mesh);
+    bucket.push(mesh);
   }
 
   private buildWaypoints() {

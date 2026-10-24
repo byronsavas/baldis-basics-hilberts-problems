@@ -16,12 +16,18 @@ document.documentElement.style.setProperty(
   `url("${assetUrl('textures/characters/Hilbert.png')}")`,
 );
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: false,
+  powerPreference: 'high-performance',
+});
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// Nearest-filter pixel art; cap DPR so Retina isn't rendering 4× pixels
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
 
 window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
 });
 
 inputManager.init(canvas);

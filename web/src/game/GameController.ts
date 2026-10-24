@@ -3,7 +3,7 @@ import { gameLoop } from '../engine/GameLoop';
 import { inputManager, InputAction } from '../engine/InputManager';
 import { audioManager } from '../engine/AudioManager';
 import { sceneManager } from '../engine/SceneManager';
-import { checkTrigger } from '../engine/Physics';
+import { checkTrigger, type AABB } from '../engine/Physics';
 import { pathfinder } from './Pathfinding';
 import { SchoolMap } from './Map';
 import defaultLevelData from '../levels/default.json';
@@ -88,6 +88,7 @@ export class GameController {
   private catchFade = 0;
   private catchPhase: 'camera' | 'fade' | 'done' = 'camera';
   private static readonly CATCH_FADE_DURATION = 2.5;
+  private readonly activeWalls: AABB[] = [];
 
   constructor() {
     this.map = new SchoolMap(validateLevel(defaultLevelData));
@@ -726,7 +727,9 @@ export class GameController {
   }
 
   private updatePlayerWalls() {
-    const walls = [...this.map.wallAABBs];
+    const walls = this.activeWalls;
+    walls.length = 0;
+    for (const wall of this.map.wallAABBs) walls.push(wall);
     for (const d of this.doors) {
       const aabb = d.getActiveAABB();
       if (aabb) walls.push(aabb);
@@ -736,16 +739,12 @@ export class GameController {
       if (aabb) walls.push(aabb);
     }
     this.player.setWalls(walls);
-    for (const npc of [
-      this.baldi,
-      this.principal,
-      this.playtime,
-      this.firstPrize,
-      this.crafters,
-      this.gottaSweep,
-    ]) {
-      npc.setWalls(walls);
-    }
+    this.baldi.setWalls(walls);
+    this.principal.setWalls(walls);
+    this.playtime.setWalls(walls);
+    this.firstPrize.setWalls(walls);
+    this.crafters.setWalls(walls);
+    this.gottaSweep.setWalls(walls);
   }
 
   private checkExits() {

@@ -35,6 +35,13 @@ export class Player {
   private bootsTimer = 0;
   private walls: AABB[] = [];
   private velocity = new THREE.Vector3();
+  private readonly forward = new THREE.Vector3();
+  private readonly right = new THREE.Vector3();
+  private readonly movement = new THREE.Vector3();
+  private readonly lateralMovement = new THREE.Vector3();
+  private readonly desiredMove = new THREE.Vector3();
+  private readonly forwardOut = new THREE.Vector3();
+  private readonly externalForce = new THREE.Vector3();
 
   setWalls(walls: AABB[]) {
     this.walls = walls;
@@ -88,21 +95,21 @@ export class Player {
   }
 
   private playerMove(dt: number) {
-    const forward = new THREE.Vector3(-Math.sin(this.rotation), 0, -Math.cos(this.rotation));
-    const right = new THREE.Vector3(Math.cos(this.rotation), 0, -Math.sin(this.rotation));
+    this.forward.set(-Math.sin(this.rotation), 0, -Math.cos(this.rotation));
+    this.right.set(Math.cos(this.rotation), 0, -Math.sin(this.rotation));
 
-    let movement = new THREE.Vector3();
-    let lateralMovement = new THREE.Vector3();
+    this.movement.set(0, 0, 0);
+    this.lateralMovement.set(0, 0, 0);
 
-    if (inputManager.getAction(InputAction.MoveForward)) movement.add(forward);
-    if (inputManager.getAction(InputAction.MoveBackward)) movement.sub(forward);
-    if (inputManager.getAction(InputAction.MoveLeft)) lateralMovement.sub(right);
-    if (inputManager.getAction(InputAction.MoveRight)) lateralMovement.add(right);
+    if (inputManager.getAction(InputAction.MoveForward)) this.movement.add(this.forward);
+    if (inputManager.getAction(InputAction.MoveBackward)) this.movement.sub(this.forward);
+    if (inputManager.getAction(InputAction.MoveLeft)) this.lateralMovement.sub(this.right);
+    if (inputManager.getAction(InputAction.MoveRight)) this.lateralMovement.add(this.right);
 
     let speed = this.walkSpeed;
     if (this.stamina > 0 && inputManager.getAction(InputAction.Run)) {
       speed = this.runSpeed;
-      if (movement.length() > 0.1 || lateralMovement.length() > 0.1) {
+      if (this.movement.lengthSq() > 0.01 || this.lateralMovement.lengthSq() > 0.01) {
         this.resetGuilt('running', 0.1);
       }
     }
@@ -115,13 +122,13 @@ export class Player {
       speed = 0;
     }
 
-    const combined = movement.add(lateralMovement);
-    if (combined.length() > 1) combined.normalize();
+    this.desiredMove.copy(this.movement).add(this.lateralMovement);
+    if (this.desiredMove.lengthSq() > 1) this.desiredMove.normalize();
+    this.desiredMove.multiplyScalar(speed * dt);
 
-    const desiredMove = combined.multiplyScalar(speed * dt);
-    const adjustedMove = slideMove(this.position, desiredMove, 1.5, this.walls);
-    this.position.add(adjustedMove);
-    this.velocity.copy(adjustedMove).divideScalar(dt);
+    slideMove(this.position, this.desiredMove, 1.5, this.walls);
+    this.position.add(this.desiredMove);
+    this.velocity.copy(this.desiredMove).multiplyScalar(dt > 0 ? 1 / dt : 0);
   }
 
   private staminaCheck(dt: number) {
@@ -171,7 +178,7 @@ export class Player {
   }
 
   getForward(): THREE.Vector3 {
-    return new THREE.Vector3(-Math.sin(this.rotation), 0, -Math.cos(this.rotation));
+    return this.forwardOut.set(-Math.sin(this.rotation), 0, -Math.cos(this.rotation));
   }
 
   getVelocity(): THREE.Vector3 {
@@ -179,8 +186,9 @@ export class Player {
   }
 
   applyExternalForce(force: THREE.Vector3) {
-    const adjusted = slideMove(this.position, force, 1.5, this.walls);
-    this.position.add(adjusted);
+    this.externalForce.copy(force);
+    slideMove(this.position, this.externalForce, 1.5, this.walls);
+    this.position.add(this.externalForce);
   }
 
   setSweeping(failsafe: number) {

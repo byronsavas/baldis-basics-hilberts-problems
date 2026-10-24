@@ -16,6 +16,9 @@ export abstract class NpcBase {
   protected coolDown = 0;
   protected walls: AABB[] = [];
   protected collisionRadius: number;
+  private readonly moveDir = new THREE.Vector3();
+  private readonly stepMove = new THREE.Vector3();
+  private readonly pathDir = new THREE.Vector3();
 
   mesh: THREE.Group;
   protected spriteMesh: THREE.Mesh;
@@ -54,13 +57,13 @@ export abstract class NpcBase {
 
     const maxStep = this.collisionRadius * 0.75;
     let remaining = move.length();
-    const direction = move.clone().normalize();
+    this.moveDir.copy(move).multiplyScalar(1 / remaining);
 
     while (remaining > 0) {
       const step = Math.min(remaining, maxStep);
-      const stepMove = direction.clone().multiplyScalar(step);
-      const adjusted = slideMove(this.position, stepMove, this.collisionRadius, this.walls);
-      this.position.add(adjusted);
+      this.stepMove.copy(this.moveDir).multiplyScalar(step);
+      slideMove(this.position, this.stepMove, this.collisionRadius, this.walls);
+      this.position.add(this.stepMove);
       resolveCylinderPenetration(this.position, this.collisionRadius, this.walls);
       remaining -= step;
     }
@@ -91,9 +94,9 @@ export abstract class NpcBase {
     const target = this.path[this.pathIndex];
     if (!target) return;
 
-    const direction = target.clone().sub(this.position);
-    direction.y = 0;
-    const dist = direction.length();
+    this.pathDir.copy(target).sub(this.position);
+    this.pathDir.y = 0;
+    const dist = this.pathDir.length();
 
     if (dist < 1) {
       this.pathIndex++;
@@ -104,9 +107,9 @@ export abstract class NpcBase {
       return;
     }
 
-    direction.normalize();
+    this.pathDir.multiplyScalar(1 / dist);
     const moveAmount = Math.min(this.speed * dt, dist);
-    this.applyMove(direction.multiplyScalar(moveAmount));
+    this.applyMove(this.pathDir.multiplyScalar(moveAmount));
     this.mesh.position.copy(this.position);
   }
 

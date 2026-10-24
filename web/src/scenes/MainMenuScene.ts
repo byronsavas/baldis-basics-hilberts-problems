@@ -8,8 +8,13 @@ import { SFXPlayer } from '../game/MusicGenerator';
 export class MainMenuScene implements GameScene {
   name = 'mainmenu';
   private introAudio: HTMLAudioElement | null = null;
-  private introBaseVolume = 0.4;
+  private greetingAudio: HTMLAudioElement | null = null;
+  private introBaseVolume = 0.18;
+  private introDuckedVolume = 0.05;
+  private greetingBaseVolume = 1;
+  private musicDucked = false;
   private unsubscribeMusic: (() => void) | null = null;
+  private unsubscribeSfx: (() => void) | null = null;
 
   onEnter() {
     SFXPlayer.stopCatchGlitch();
@@ -19,13 +24,26 @@ export class MainMenuScene implements GameScene {
     el.classList.add('active');
     inputManager.unlockPointer();
 
+    this.musicDucked = true;
     this.introAudio = new Audio(assetUrl('/audio/Mus_Intro.wav'));
     this.introAudio.loop = true;
-    this.introAudio.volume = audioSettings.scaledMusic(this.introBaseVolume);
+    this.applyIntroVolume();
     this.introAudio.play().catch(() => {});
-    this.unsubscribeMusic = audioSettings.onMusicVolumeChange(() => {
-      if (this.introAudio) {
-        this.introAudio.volume = audioSettings.scaledMusic(this.introBaseVolume);
+    this.unsubscribeMusic = audioSettings.onMusicVolumeChange(() => this.applyIntroVolume());
+
+    this.greetingAudio = new Audio(assetUrl('/audio/baldi/start-greeting.m4a'));
+    this.greetingAudio.volume = audioSettings.scaledSfx(this.greetingBaseVolume);
+    this.greetingAudio.onended = () => {
+      this.musicDucked = false;
+      this.applyIntroVolume();
+    };
+    this.greetingAudio.play().catch(() => {
+      this.musicDucked = false;
+      this.applyIntroVolume();
+    });
+    this.unsubscribeSfx = audioSettings.onSfxVolumeChange(() => {
+      if (this.greetingAudio) {
+        this.greetingAudio.volume = audioSettings.scaledSfx(this.greetingBaseVolume);
       }
     });
 
@@ -43,14 +61,28 @@ export class MainMenuScene implements GameScene {
     };
   }
 
+  private applyIntroVolume() {
+    if (!this.introAudio) return;
+    const base = this.musicDucked ? this.introDuckedVolume : this.introBaseVolume;
+    this.introAudio.volume = audioSettings.scaledMusic(base);
+  }
+
   onExit() {
     document.getElementById('main-menu')!.classList.remove('active');
     optionsMenuUI.hide();
     this.unsubscribeMusic?.();
     this.unsubscribeMusic = null;
+    this.unsubscribeSfx?.();
+    this.unsubscribeSfx = null;
+    this.musicDucked = false;
     if (this.introAudio) {
       this.introAudio.pause();
       this.introAudio = null;
+    }
+    if (this.greetingAudio) {
+      this.greetingAudio.onended = null;
+      this.greetingAudio.pause();
+      this.greetingAudio = null;
     }
   }
 

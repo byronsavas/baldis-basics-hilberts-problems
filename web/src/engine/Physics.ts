@@ -28,7 +28,14 @@ export function pointInAABB(point: THREE.Vector3, box: AABB): boolean {
   );
 }
 
+const EXPAND_XZ = new THREE.Vector3();
 const EXPAND_Y = new THREE.Vector3(0, 10, 0);
+const _expandedMin = new THREE.Vector3();
+const _expandedMax = new THREE.Vector3();
+const _slideNewPos = new THREE.Vector3();
+const _rayDir = new THREE.Vector3();
+const _rayNdc = new THREE.Vector2(0, 0);
+const _raycaster = new THREE.Raycaster();
 
 function cylinderOverlapsWall(
   position: THREE.Vector3,
@@ -37,8 +44,9 @@ function cylinderOverlapsWall(
   expandedMin: THREE.Vector3,
   expandedMax: THREE.Vector3,
 ): boolean {
-  expandedMin.copy(wall.min).sub(new THREE.Vector3(radius, 0, radius));
-  expandedMax.copy(wall.max).add(EXPAND_Y).add(new THREE.Vector3(radius, 0, radius));
+  EXPAND_XZ.set(radius, 0, radius);
+  expandedMin.copy(wall.min).sub(EXPAND_XZ);
+  expandedMax.copy(wall.max).add(EXPAND_Y).add(EXPAND_XZ);
   return (
     position.x >= expandedMin.x && position.x <= expandedMax.x &&
     position.y >= expandedMin.y && position.y <= expandedMax.y &&
@@ -53,8 +61,9 @@ function pushOutOfWall(
   expandedMin: THREE.Vector3,
   expandedMax: THREE.Vector3,
 ): void {
-  expandedMin.copy(wall.min).sub(new THREE.Vector3(radius, 0, radius));
-  expandedMax.copy(wall.max).add(EXPAND_Y).add(new THREE.Vector3(radius, 0, radius));
+  EXPAND_XZ.set(radius, 0, radius);
+  expandedMin.copy(wall.min).sub(EXPAND_XZ);
+  expandedMax.copy(wall.max).add(EXPAND_Y).add(EXPAND_XZ);
 
   const overlapX1 = position.x - expandedMin.x;
   const overlapX2 = expandedMax.x - position.x;
@@ -77,14 +86,11 @@ export function resolveCylinderPenetration(
   radius: number,
   walls: AABB[],
 ): void {
-  const expandedMin = new THREE.Vector3();
-  const expandedMax = new THREE.Vector3();
-
   for (let pass = 0; pass < 6; pass++) {
     let moved = false;
     for (const wall of walls) {
-      if (cylinderOverlapsWall(position, radius, wall, expandedMin, expandedMax)) {
-        pushOutOfWall(position, radius, wall, expandedMin, expandedMax);
+      if (cylinderOverlapsWall(position, radius, wall, _expandedMin, _expandedMax)) {
+        pushOutOfWall(position, radius, wall, _expandedMin, _expandedMax);
         moved = true;
       }
     }
@@ -94,7 +100,7 @@ export function resolveCylinderPenetration(
 
 /**
  * Slide a cylinder (player/NPC) against wall AABBs.
- * Returns the adjusted movement vector.
+ * Mutates and returns `movement` with the adjusted vector.
  */
 export function slideMove(
   position: THREE.Vector3,
@@ -102,19 +108,14 @@ export function slideMove(
   radius: number,
   walls: AABB[],
 ): THREE.Vector3 {
-  const result = movement.clone();
-  const newPos = new THREE.Vector3();
-  const expandedMin = new THREE.Vector3();
-  const expandedMax = new THREE.Vector3();
-
   for (let pass = 0; pass < 4; pass++) {
     let adjusted = false;
-    newPos.copy(position).add(result);
+    _slideNewPos.copy(position).add(movement);
 
     for (const wall of walls) {
-      if (cylinderOverlapsWall(newPos, radius, wall, expandedMin, expandedMax)) {
-        pushOutOfWall(newPos, radius, wall, expandedMin, expandedMax);
-        result.copy(newPos).sub(position);
+      if (cylinderOverlapsWall(_slideNewPos, radius, wall, _expandedMin, _expandedMax)) {
+        pushOutOfWall(_slideNewPos, radius, wall, _expandedMin, _expandedMax);
+        movement.copy(_slideNewPos).sub(position);
         adjusted = true;
       }
     }
@@ -122,7 +123,7 @@ export function slideMove(
     if (!adjusted) break;
   }
 
-  return result;
+  return movement;
 }
 
 /**
@@ -153,10 +154,9 @@ export function raycastFromCamera(
   objects: THREE.Object3D[],
   maxDistance = 10,
 ): THREE.Intersection | null {
-  const raycaster = new THREE.Raycaster();
-  raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-  raycaster.far = maxDistance;
-  const hits = raycaster.intersectObjects(objects, true);
+  _raycaster.setFromCamera(_rayNdc, camera);
+  _raycaster.far = maxDistance;
+  const hits = _raycaster.intersectObjects(objects, true);
   return hits.length > 0 ? hits[0] : null;
 }
 
@@ -168,10 +168,14 @@ export function raycastBetween(
   to: THREE.Vector3,
   obstacles: THREE.Object3D[],
 ): { hit: boolean; object?: THREE.Object3D; distance?: number } {
-  const direction = to.clone().sub(from).normalize();
-  const distance = from.distanceTo(to);
-  const raycaster = new THREE.Raycaster(from, direction, 0, distance);
-  const hits = raycaster.intersectObjects(obstacles, true);
+  _rayDir.copy(to).sub(from);
+  const distance = _rayDir.length();
+  if (distance === 0) return { hit: false };
+  _rayDir.multiplyScalar(1 / distance);
+  _raycaster.set(from, _rayDir);
+  _raycaster.near = 0;
+  _raycaster.far = distance;
+  const hits = _raycaster.intersectObjects(obstacles, true);
   if (hits.length > 0) {
     return { hit: true, object: hits[0].object, distance: hits[0].distance };
   }
