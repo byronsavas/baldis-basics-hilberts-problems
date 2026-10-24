@@ -84,6 +84,10 @@ export class GameController {
   private baldiQuoteCooldown = 0;
   private static readonly BALDI_QUOTE_RADIUS = 15;
   private static readonly BALDI_QUOTE_COOLDOWN = 25;
+  private catchGlitchStarted = false;
+  private catchFade = 0;
+  private catchPhase: 'camera' | 'fade' | 'done' = 'camera';
+  private static readonly CATCH_FADE_DURATION = 2.5;
 
   constructor() {
     this.map = new SchoolMap(validateLevel(defaultLevelData));
@@ -117,6 +121,11 @@ export class GameController {
     this.baldiWasNear = false;
     this.baldiQuoteCooldown = 0;
     this.wasJumpRoping = false;
+    this.catchGlitchStarted = false;
+    this.catchFade = 0;
+    this.catchPhase = 'camera';
+    this.gameOverDelay = 0.5;
+    GameController.setCatchFade(0);
     localStorage.setItem('CurrentMode', mode);
 
     // Setup scene
@@ -323,7 +332,7 @@ export class GameController {
     this.player.update(dt);
 
     // Update camera
-    this.camera.update(dt, this.player, this.baldi.position);
+    this.camera.update(dt, this.player, this.baldi.getFaceLookTarget());
 
     // Get active wall AABBs (including closed doors)
     this.updatePlayerWalls();
@@ -687,6 +696,8 @@ export class GameController {
       this.player.gameOver = true;
       this.gameOverDelay = 0.5;
       this.hud.hide();
+      this.player.faceToward(this.baldi.position.x, this.baldi.position.z);
+      this.camera.update(0, this.player, this.baldi.getFaceLookTarget());
     }
 
     // Bully interaction
@@ -758,20 +769,59 @@ export class GameController {
 
   private handleGameOver(dt: number) {
     gameLoop.setTimeScale(0);
-    this.gameOverDelay -= dt * 0.5;
-    this.camera.setFarClipPlane(this.gameOverDelay * 400);
-    this.camera.update(dt, this.player, this.baldi.position);
 
-    if (this.gameOverDelay <= 0) {
-      if (this.mode === 'endless') {
-        const current = this.notebookCount;
-        const high = parseInt(localStorage.getItem('HighBooks') ?? '0', 10);
-        if (current > high) {
-          localStorage.setItem('HighBooks', String(current));
-        }
-      }
-      sceneManager.loadScene('gameover');
+    if (!this.catchGlitchStarted) {
+      this.catchGlitchStarted = true;
+      this.schoolMusic.stop();
+      this.spookyMusic.stop();
+      SFXPlayer.stopPlaytimeMusic();
+      SFXPlayer.stopLearnMusic();
+      SFXPlayer.playCatchGlitch();
+      inputManager.unlockPointer();
     }
+
+    if (this.catchPhase === 'camera') {
+      this.gameOverDelay -= dt * 0.5;
+      this.camera.setFarClipPlane(this.gameOverDelay * 400);
+      this.camera.update(dt, this.player, this.baldi.getFaceLookTarget());
+
+      if (this.gameOverDelay <= 0) {
+        this.catchPhase = 'fade';
+        this.catchFade = 0;
+      }
+      return;
+    }
+
+    if (this.catchPhase === 'fade') {
+      this.catchFade += dt / GameController.CATCH_FADE_DURATION;
+      GameController.setCatchFade(Math.min(1, this.catchFade));
+      this.camera.update(dt, this.player, this.baldi.getFaceLookTarget());
+
+      if (this.catchFade >= 1) {
+        this.finishCatchSequence();
+      }
+    }
+  }
+
+  private finishCatchSequence() {
+    if (this.catchPhase === 'done') return;
+    this.catchPhase = 'done';
+
+    if (this.mode === 'endless') {
+      const current = this.notebookCount;
+      const high = parseInt(localStorage.getItem('HighBooks') ?? '0', 10);
+      if (current > high) {
+        localStorage.setItem('HighBooks', String(current));
+      }
+    }
+
+    gameLoop.setTimeScale(1);
+    sceneManager.loadScene('mainmenu');
+  }
+
+  private static setCatchFade(opacity: number) {
+    const el = document.getElementById('catch-fade');
+    if (el) el.style.opacity = String(opacity);
   }
 
   pauseGame() {
@@ -812,6 +862,8 @@ export class GameController {
     this.spookyMusic.stop();
     SFXPlayer.stopPlaytimeMusic();
     SFXPlayer.stopLearnMusic();
+    SFXPlayer.stopCatchGlitch();
+    GameController.setCatchFade(0);
     this.hud.hide();
     this.pauseMenuUI.hide();
     optionsMenuUI.hide();

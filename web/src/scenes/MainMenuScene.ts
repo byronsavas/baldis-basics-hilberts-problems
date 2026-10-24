@@ -1,7 +1,9 @@
 import { sceneManager, type GameScene } from '../engine/SceneManager';
 import { inputManager } from '../engine/InputManager';
+import { assetUrl } from '../engine/assetUrl';
 import { audioSettings } from '../engine/AudioSettings';
 import { optionsMenuUI } from '../game/ui/OptionsMenu';
+import { SFXPlayer } from '../game/MusicGenerator';
 
 export class MainMenuScene implements GameScene {
   name = 'mainmenu';
@@ -10,11 +12,14 @@ export class MainMenuScene implements GameScene {
   private unsubscribeMusic: (() => void) | null = null;
 
   onEnter() {
+    SFXPlayer.stopCatchGlitch();
+    document.getElementById('catch-fade')!.style.opacity = '0';
+
     const el = document.getElementById('main-menu')!;
     el.classList.add('active');
     inputManager.unlockPointer();
 
-    this.introAudio = new Audio('/audio/Mus_Intro.wav');
+    this.introAudio = new Audio(assetUrl('/audio/Mus_Intro.wav'));
     this.introAudio.loop = true;
     this.introAudio.volume = audioSettings.scaledMusic(this.introBaseVolume);
     this.introAudio.play().catch(() => {});

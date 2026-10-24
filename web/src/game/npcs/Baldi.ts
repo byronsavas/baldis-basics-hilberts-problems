@@ -1,8 +1,20 @@
 import * as THREE from 'three';
+import { assetUrl } from '../../engine/assetUrl';
 import { NpcBase } from './NpcBase';
 
+const IDLE_TEXTURE = '/textures/characters/HilbertIdle.png';
+const CHASING_TEXTURE = '/textures/characters/HilbertChasing.png';
 const SPRITE_HEIGHT = 8;
-const SPRITE_WIDTH = SPRITE_HEIGHT * (262 / 901);
+const IDLE_ASPECT = 329 / 1024;
+const CHASING_ASPECT = 576 / 1024;
+const SPRITE_WIDTH = SPRITE_HEIGHT * IDLE_ASPECT;
+const textureLoader = new THREE.TextureLoader();
+
+function configureSpriteTexture(tex: THREE.Texture) {
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;
+  tex.colorSpace = THREE.SRGBColorSpace;
+}
 
 export class Baldi extends NpcBase {
   baseTime = 2.5;
@@ -25,13 +37,36 @@ export class Baldi extends NpcBase {
   private currentPriority = 0;
   private previous = new THREE.Vector3();
   private slapSpeed = 80;
+  private idleTexture: THREE.Texture;
+  private chasingTexture: THREE.Texture;
+  private usingChasingSprite = false;
 
   constructor() {
-    super('/textures/characters/Hilbert.png', SPRITE_HEIGHT, SPRITE_WIDTH);
+    super(IDLE_TEXTURE, SPRITE_HEIGHT, SPRITE_WIDTH);
+    this.idleTexture = this.spriteMaterial.map!;
+    configureSpriteTexture(this.idleTexture);
+    this.chasingTexture = textureLoader.load(assetUrl(CHASING_TEXTURE));
+    configureSpriteTexture(this.chasingTexture);
+  }
+
+  private updateChasingSprite() {
+    const chasing = this.active && this.db;
+    if (chasing === this.usingChasingSprite) return;
+
+    this.usingChasingSprite = chasing;
+    this.spriteMaterial.map = chasing ? this.chasingTexture : this.idleTexture;
+    this.spriteMaterial.needsUpdate = true;
+    this.spriteMesh.scale.x = chasing ? CHASING_ASPECT / IDLE_ASPECT : 1;
   }
 
   update(dt: number, playerPos: THREE.Vector3) {
     if (!this.active) {
+      if (this.usingChasingSprite) {
+        this.usingChasingSprite = false;
+        this.spriteMaterial.map = this.idleTexture;
+        this.spriteMaterial.needsUpdate = true;
+        this.spriteMesh.scale.x = 1;
+      }
       this.syncMesh();
       return;
     }
@@ -87,6 +122,7 @@ export class Baldi extends NpcBase {
       this.wander();
     }
 
+    this.updateChasingSprite();
     this.syncMesh();
   }
 
@@ -127,5 +163,17 @@ export class Baldi extends NpcBase {
     this.antiHearing = true;
     this.antiHearingTime = duration;
     this.wander();
+  }
+
+  private faceLookTarget = new THREE.Vector3();
+
+  /** World position to aim the camera at when Baldi catches the player */
+  getFaceLookTarget(): THREE.Vector3 {
+    this.faceLookTarget.set(
+      this.position.x,
+      this.position.y + SPRITE_HEIGHT * 0.8125,
+      this.position.z,
+    );
+    return this.faceLookTarget;
   }
 }

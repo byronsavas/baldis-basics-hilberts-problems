@@ -26,7 +26,7 @@ export class GameCamera {
     this.jumpVelocity = 0;
   }
 
-  update(dt: number, player: Player, baldiPosition?: THREE.Vector3) {
+  update(dt: number, player: Player, catchLookTarget?: THREE.Vector3) {
     if (player.jumpRope) {
       if (inputManager.getAction(InputAction.Jump) && this.jumpHeight <= 0) {
         this.jumpVelocity = this.initVelocity;
@@ -44,9 +44,14 @@ export class GameCamera {
 
     this.lookBehind = !player.jumpRope && inputManager.getAction(InputAction.LookBehind);
 
-    if (player.gameOver && baldiPosition) {
-      this.camera.position.copy(player.position);
-      this.camera.lookAt(baldiPosition);
+    if (player.gameOver && catchLookTarget) {
+      // Drop the view and tilt up toward Baldi's face, like the original catch sequence
+      this.camera.position.set(
+        player.position.x,
+        player.position.y - 2.5,
+        player.position.z,
+      );
+      this.camera.lookAt(catchLookTarget);
     } else {
       this.camera.position.set(
         player.position.x + this.offset.x,

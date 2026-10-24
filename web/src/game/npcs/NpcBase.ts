@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { resolveCylinderPenetration, slideMove, type AABB } from '../../engine/Physics';
+import { assetUrl } from '../../engine/assetUrl';
 import { pathfinder } from '../Pathfinding';
 
 const textureLoader = new THREE.TextureLoader();
@@ -23,7 +24,7 @@ export abstract class NpcBase {
   constructor(spritePath: string, spriteHeight = 8, spriteWidth?: number) {
     this.mesh = new THREE.Group();
 
-    const tex = textureLoader.load(spritePath);
+    const tex = textureLoader.load(assetUrl(spritePath));
     tex.magFilter = THREE.NearestFilter;
     tex.minFilter = THREE.NearestFilter;
     tex.colorSpace = THREE.SRGBColorSpace;

@@ -3,6 +3,7 @@
  */
 
 import { audioSettings } from '../engine/AudioSettings';
+import { assetUrl } from '../engine/assetUrl';
 
 export class MusicPlayer {
   private audio: HTMLAudioElement | null = null;
@@ -12,7 +13,7 @@ export class MusicPlayer {
 
   start() {
     if (this.playing) return;
-    this.audio = new Audio('/audio/Mus_School.wav');
+    this.audio = new Audio(assetUrl('/audio/Mus_School.wav'));
     this.audio.loop = true;
     this.applyVolume();
     this.audio.play().catch(() => {});
@@ -60,7 +61,7 @@ export class SpookyMusic {
 
   start() {
     if (this.playing) return;
-    this.audio = new Audio('/audio/Ev5_Loop.mp3');
+    this.audio = new Audio(assetUrl('/audio/Ev5_Loop.mp3'));
     this.audio.loop = true;
     this.applyVolume();
     this.audio.play().catch(() => {});
@@ -112,10 +113,13 @@ export class SFXPlayer {
   private static learnMusicAudio: HTMLAudioElement | null = null;
   private static correctAnswerAudio: HTMLAudioElement | null = null;
   private static wrongAnswerAudio: HTMLAudioElement | null = null;
+  private static catchGlitchAudio: HTMLAudioElement | null = null;
+  private static catchGlitchStopTimer: ReturnType<typeof setTimeout> | null = null;
+  private static readonly CATCH_GLITCH_DURATION = 5;
 
   static playPlaytimeMusic(volume = 0.5) {
     this.stopPlaytimeMusic();
-    this.playtimeAudio = new Audio('/audio/Mus_Playtime.wav');
+    this.playtimeAudio = new Audio(assetUrl('/audio/Mus_Playtime.wav'));
     this.playtimeAudio.loop = true;
     this.playtimeAudio.volume = audioSettings.scaledSfx(volume);
     this.playtimeAudio.play().catch(() => {});
@@ -129,7 +133,7 @@ export class SFXPlayer {
   }
 
   static play(path: string, volume = 0.5) {
-    const audio = new Audio(path);
+    const audio = new Audio(assetUrl(path));
     audio.volume = audioSettings.scaledSfx(volume);
     audio.play().catch(() => {});
   }
@@ -140,7 +144,7 @@ export class SFXPlayer {
     }
 
     const path = this.hilbertQuotes[Math.floor(Math.random() * this.hilbertQuotes.length)];
-    this.quoteAudio = new Audio(path);
+    this.quoteAudio = new Audio(assetUrl(path));
     this.quoteAudio.volume = audioSettings.scaledSfx(volume);
     this.quoteAudio.onended = () => {
       this.quoteAudio = null;
@@ -151,7 +155,7 @@ export class SFXPlayer {
 
   static playLearnMusic() {
     this.stopLearnMusic();
-    this.learnMusicAudio = new Audio('/audio/LearnNew.wav');
+    this.learnMusicAudio = new Audio(assetUrl('/audio/LearnNew.wav'));
     this.learnMusicAudio.loop = true;
     this.learnMusicAudio.volume = audioSettings.scaledSfx(0.4);
     this.learnMusicAudio.play().catch(() => {});
@@ -177,7 +181,7 @@ export class SFXPlayer {
       current.currentTime = 0;
     }
 
-    const audio = new Audio(path);
+    const audio = new Audio(assetUrl(path));
     audio.volume = audioSettings.scaledSfx(volume);
     audio.onended = () => {
       if (this[slot] === audio) this[slot] = null;
@@ -208,6 +212,27 @@ export class SFXPlayer {
 
   static playHang() {
     this.play('/audio/Mus_hang.wav', 0.5);
+  }
+
+  static playCatchGlitch(volume = 0.85) {
+    this.stopCatchGlitch();
+    this.catchGlitchAudio = new Audio(assetUrl('/audio/ErrorScreen.mp3'));
+    this.catchGlitchAudio.volume = audioSettings.scaledSfx(volume);
+    this.catchGlitchAudio.play().catch(() => {});
+    this.catchGlitchStopTimer = setTimeout(() => {
+      this.stopCatchGlitch();
+    }, this.CATCH_GLITCH_DURATION * 1000);
+  }
+
+  static stopCatchGlitch() {
+    if (this.catchGlitchStopTimer) {
+      clearTimeout(this.catchGlitchStopTimer);
+      this.catchGlitchStopTimer = null;
+    }
+    if (!this.catchGlitchAudio) return;
+    this.catchGlitchAudio.pause();
+    this.catchGlitchAudio.currentTime = 0;
+    this.catchGlitchAudio = null;
   }
 
   static playEvent() {

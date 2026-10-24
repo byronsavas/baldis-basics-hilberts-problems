@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { assetUrl } from '../../engine/assetUrl';
 import { pathfinder } from '../Pathfinding';
 
 const textureLoader = new THREE.TextureLoader();
@@ -17,7 +18,7 @@ export class Bully {
   constructor() {
     this.mesh = new THREE.Group();
 
-    const tex = textureLoader.load('/textures/characters/Bully.png');
+    const tex = textureLoader.load(assetUrl('/textures/characters/Bully.png'));
     tex.magFilter = THREE.NearestFilter;
     tex.minFilter = THREE.NearestFilter;
     tex.colorSpace = THREE.SRGBColorSpace;

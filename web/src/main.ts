@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { gameLoop } from './engine/GameLoop';
 import { inputManager } from './engine/InputManager';
 import { sceneManager } from './engine/SceneManager';
+import { assetUrl } from './engine/assetUrl';
 import { WarningScene } from './scenes/WarningScene';
 import { MainMenuScene } from './scenes/MainMenuScene';
 import { SchoolScene } from './scenes/SchoolScene';
@@ -9,6 +10,11 @@ import { GameOverScene } from './scenes/GameOverScene';
 import { ResultsScene } from './scenes/ResultsScene';
 
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+
+document.documentElement.style.setProperty(
+  '--portrait-texture',
+  `url("${assetUrl('textures/characters/Hilbert.png')}")`,
+);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);

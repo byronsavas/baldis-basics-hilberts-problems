@@ -1,9 +1,10 @@
 import * as THREE from 'three';
+import { assetUrl } from '../engine/assetUrl';
 
 const loader = new THREE.TextureLoader();
 
 function loadTex(path: string, repeatX = 1, repeatY = 1): THREE.Texture {
-  const tex = loader.load(path);
+  const tex = loader.load(assetUrl(path));
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
   tex.repeat.set(repeatX, repeatY);

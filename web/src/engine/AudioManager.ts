@@ -1,4 +1,5 @@
 import { audioSettings } from './AudioSettings';
+import { assetUrl } from './assetUrl';
 
 class AudioManager {
   private ctx: AudioContext | null = null;
@@ -26,7 +27,7 @@ class AudioManager {
   async load(name: string, url: string): Promise<AudioBuffer> {
     if (this.buffers.has(name)) return this.buffers.get(name)!;
     const ctx = this.getContext();
-    const resp = await fetch(url);
+    const resp = await fetch(assetUrl(url));
     const data = await resp.arrayBuffer();
     const buffer = await ctx.decodeAudioData(data);
     this.buffers.set(name, buffer);
