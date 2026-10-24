@@ -12,6 +12,12 @@ Can you find every notebook… and face all 23 of his problems?
 
 ## Play
 
+**GitHub Pages:** push to `main` and the site builds automatically. After enabling Pages (Settings → Pages → Source: **GitHub Actions**), the game is at:
+
+https://byronsavas.github.io/baldis-basics-hilberts-problems/
+
+**Locally:**
+
 ```bash
 cd web
 nvm use 22    # Node 22+
@@ -19,7 +25,7 @@ npm install
 npm run dev   # http://localhost:5173
 ```
 
-Or build a static site with `npm run build` and serve the `web/dist/` folder (relative paths — works from a subdirectory).
+Or `npm run build` and serve `web/dist/` (relative asset paths — works from a subdirectory).
 
 ## References
 
