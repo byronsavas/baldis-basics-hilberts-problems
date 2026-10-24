@@ -30,6 +30,18 @@ const DEFAULT_BINDINGS: Record<InputAction, string[]> = {
   [InputAction.LookBehind]: ['KeyQ'],
 };
 
+const VIRTUAL_PREFIX = 'Virtual:';
+
+function virtualCode(action: InputAction): string {
+  return `${VIRTUAL_PREFIX}${InputAction[action]}`;
+}
+
+for (const value of Object.values(InputAction)) {
+  if (typeof value === 'number') {
+    DEFAULT_BINDINGS[value].push(virtualCode(value));
+  }
+}
+
 class InputManager {
   private keysDown = new Set<string>();
   private keysJustDown = new Set<string>();
@@ -37,6 +49,8 @@ class InputManager {
   private mouseDx = 0;
   private mouseDy = 0;
   private scrollDelta = 0;
+  private moveX = 0;
+  private moveY = 0;
   private pointerLocked = false;
   private canvas: HTMLCanvasElement | null = null;
   onPointerLockLost: (() => void) | null = null;
@@ -96,7 +110,15 @@ class InputManager {
     });
   }
 
+  /** Phones and tablets: coarse pointer, or a browser without pointer lock (iOS Safari). */
+  usesTouchControls(): boolean {
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const canLock = 'requestPointerLock' in HTMLElement.prototype;
+    return coarse || !canLock;
+  }
+
   lockPointer() {
+    if (this.usesTouchControls()) return;
     this.canvas?.requestPointerLock();
   }
 
@@ -139,9 +161,38 @@ class InputManager {
 
   anyKeyboardKeyDown(): boolean {
     for (const code of this.keysJustDown) {
-      if (!code.startsWith('Mouse')) return true;
+      if (!code.startsWith('Mouse') && !code.startsWith(VIRTUAL_PREFIX)) return true;
     }
     return false;
+  }
+
+  /** Held virtual buttons share the key sets so getAction sees them. */
+  setVirtualAction(action: InputAction, down: boolean) {
+    const code = virtualCode(action);
+    if (down) {
+      if (!this.keysDown.has(code)) {
+        this.keysJustDown.add(code);
+      }
+      this.keysDown.add(code);
+    } else if (this.keysDown.has(code)) {
+      this.keysDown.delete(code);
+      this.keysJustUp.add(code);
+    }
+  }
+
+  /** x is strafe (right positive), y is forward. Each axis is clamped to [-1, 1]. */
+  setMoveAxes(x: number, y: number) {
+    this.moveX = clampAxis(x);
+    this.moveY = clampAxis(y);
+  }
+
+  getMoveAxes(): { x: number; y: number } {
+    return { x: this.moveX, y: this.moveY };
+  }
+
+  addLookDelta(dx: number, dy = 0) {
+    if (Number.isFinite(dx)) this.mouseDx += dx;
+    if (Number.isFinite(dy)) this.mouseDy += dy;
   }
 
   getMouseDelta(): { dx: number; dy: number } {
@@ -159,6 +210,11 @@ class InputManager {
     this.mouseDy = 0;
     this.scrollDelta = 0;
   }
+}
+
+function clampAxis(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(-1, Math.min(1, value));
 }
 
 export const inputManager = new InputManager();

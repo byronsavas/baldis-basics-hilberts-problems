@@ -40,6 +40,22 @@ npm run dev   # http://localhost:5173
 | Q | Look behind |
 | Escape | Pause |
 
+## Mobile
+
+Play in landscape. Phones and tablets get on-screen controls; a mouse and keyboard keep pointer lock.
+
+| Control | Action |
+|---------|--------|
+| Left stick | Move. Push it to the edge to run |
+| Drag the right side | Look |
+| Interact / Use | Open notebooks and doors, or use the selected item |
+| Behind | Look behind while held |
+| Item slots | Select that slot |
+| Pause | Pause |
+| JUMP | Jump during jump rope |
+
+Portrait shows a rotate prompt during a round. Menus and the math pad still work in either orientation.
+
 ## Level Editor
 
 Open the editor at [http://localhost:5173/editor.html](http://localhost:5173/editor.html) while the dev server is running.

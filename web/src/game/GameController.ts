@@ -28,6 +28,7 @@ import { MathGameUI } from './ui/MathGame';
 import { PauseMenuUI } from './ui/PauseMenu';
 import { optionsMenuUI } from './ui/OptionsMenu';
 import { JumpRopeUI } from './ui/JumpRope';
+import { touchControls } from './ui/TouchControls';
 import { MusicPlayer, SpookyMusic, SFXPlayer } from './MusicGenerator';
 import { TOTAL_NOTEBOOKS } from './constants';
 
@@ -74,6 +75,7 @@ export class GameController {
   private wasJumpRoping = false;
   private canvas: HTMLCanvasElement | null = null;
   private onCanvasClick = () => {
+    if (inputManager.usesTouchControls()) return;
     if (!this.gamePaused && !this.player.gameOver && !inputManager.isPointerLocked()) {
       inputManager.lockPointer();
     }
@@ -174,6 +176,8 @@ export class GameController {
     // HUD
     this.hud.show();
     this.updateNotebookCount();
+    touchControls.setJumpMode(false);
+    touchControls.show();
 
     if (mode === 'endless') {
       this.baldi.endless = true;
@@ -411,6 +415,7 @@ export class GameController {
     if (this.player.jumpRope && !this.wasJumpRoping) {
       this.camera.resetJump();
       inputManager.unlockPointer();
+      touchControls.setJumpMode(true);
       this.jumpRopeUI.open({
         getJumpHeight: () => this.camera.jumpHeight,
         onSuccess: () => {},
@@ -423,6 +428,7 @@ export class GameController {
       });
     } else if (!this.player.jumpRope && this.wasJumpRoping) {
       this.jumpRopeUI.close();
+      touchControls.setJumpMode(false);
       inputManager.lockPointer();
     }
 
@@ -492,6 +498,7 @@ export class GameController {
 
     // Open math game (problems 1–2: arithmetic, problem 3: unsolved Hilbert problem)
     this.learningActive = true;
+    touchControls.hide();
     this.schoolMusic.suspend();
     this.spookyMusic.suspend();
     SFXPlayer.playLearnMusic();
@@ -520,6 +527,7 @@ export class GameController {
     this.learningActive = false;
     gameLoop.setTimeScale(1);
     inputManager.lockPointer();
+    touchControls.show();
     this.schoolMusic.resume();
     this.spookyMusic.resume();
 
@@ -698,6 +706,7 @@ export class GameController {
       this.player.gameOver = true;
       this.gameOverDelay = 0.5;
       this.hud.hide();
+      touchControls.hide();
       this.player.faceToward(this.baldi.position.x, this.baldi.position.z);
       this.camera.update(0, this.player, this.baldi.getFaceLookTarget());
     }
@@ -827,6 +836,7 @@ export class GameController {
     this.schoolMusic.suspend();
     this.spookyMusic.suspend();
     inputManager.unlockPointer();
+    touchControls.hide();
   }
 
   private handlePauseInput() {
@@ -842,6 +852,8 @@ export class GameController {
     this.schoolMusic.resume();
     this.spookyMusic.resume();
     inputManager.lockPointer();
+    touchControls.setJumpMode(this.player.jumpRope);
+    touchControls.show();
   }
 
   exitGame() {
@@ -850,6 +862,7 @@ export class GameController {
     this.pauseMenuUI.hide();
     optionsMenuUI.hide();
     inputManager.unlockPointer();
+    touchControls.hide();
     sceneManager.loadScene('mainmenu');
   }
 
@@ -865,6 +878,7 @@ export class GameController {
     optionsMenuUI.hide();
     this.mathGameUI.close();
     this.jumpRopeUI.close();
+    touchControls.hide();
     inputManager.onPointerLockLost = null;
     inputManager.onPointerLockGained = null;
     this.canvas?.removeEventListener('click', this.onCanvasClick);

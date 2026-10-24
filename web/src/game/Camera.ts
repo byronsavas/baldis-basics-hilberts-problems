@@ -2,6 +2,14 @@ import * as THREE from 'three';
 import { inputManager, InputAction } from '../engine/InputManager';
 import type { Player } from './Player';
 
+function viewportSize() {
+  const vv = window.visualViewport;
+  return {
+    width: Math.max(1, vv?.width ?? window.innerWidth),
+    height: Math.max(1, vv?.height ?? window.innerHeight),
+  };
+}
+
 export class GameCamera {
   camera: THREE.PerspectiveCamera;
   private offset = new THREE.Vector3(0, 0, 0);
@@ -14,11 +22,15 @@ export class GameCamera {
   private initVelocity = 18;
 
   constructor() {
-    this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 400);
-    window.addEventListener('resize', () => {
-      this.camera.aspect = window.innerWidth / window.innerHeight;
+    const size = viewportSize();
+    this.camera = new THREE.PerspectiveCamera(60, size.width / size.height, 0.1, 400);
+    const onResize = () => {
+      const next = viewportSize();
+      this.camera.aspect = next.width / next.height;
       this.camera.updateProjectionMatrix();
-    });
+    };
+    window.addEventListener('resize', onResize);
+    window.visualViewport?.addEventListener('resize', onResize);
   }
 
   resetJump() {
@@ -28,7 +40,8 @@ export class GameCamera {
 
   update(dt: number, player: Player, catchLookTarget?: THREE.Vector3) {
     if (player.jumpRope) {
-      if (inputManager.getAction(InputAction.Jump) && this.jumpHeight <= 0) {
+      const jumping = inputManager.getAction(InputAction.Jump) || inputManager.getActionDown(InputAction.Jump);
+      if (jumping && this.jumpHeight <= 0) {
         this.jumpVelocity = this.initVelocity;
       }
       this.jumpVelocity += this.gravity * dt;

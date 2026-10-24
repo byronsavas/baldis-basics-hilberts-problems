@@ -30,6 +30,8 @@ export class Player {
   mouseSensitivity = 0.002;
   flipaturn = 1;
 
+  private static readonly MOVE_AXIS_DEADZONE = 0.12;
+
   private frozenPosition = new THREE.Vector3();
   private sweepingFailsafe = 0;
   private bootsTimer = 0;
@@ -101,10 +103,23 @@ export class Player {
     this.movement.set(0, 0, 0);
     this.lateralMovement.set(0, 0, 0);
 
-    if (inputManager.getAction(InputAction.MoveForward)) this.movement.add(this.forward);
-    if (inputManager.getAction(InputAction.MoveBackward)) this.movement.sub(this.forward);
-    if (inputManager.getAction(InputAction.MoveLeft)) this.lateralMovement.sub(this.right);
-    if (inputManager.getAction(InputAction.MoveRight)) this.lateralMovement.add(this.right);
+    const axes = inputManager.getMoveAxes();
+    const axisLen = Math.hypot(axes.x, axes.y);
+    if (axisLen > Player.MOVE_AXIS_DEADZONE) {
+      let x = axes.x;
+      let y = axes.y;
+      if (inputManager.getAction(InputAction.Run)) {
+        x /= axisLen;
+        y /= axisLen;
+      }
+      this.movement.copy(this.forward).multiplyScalar(y);
+      this.lateralMovement.copy(this.right).multiplyScalar(x);
+    } else {
+      if (inputManager.getAction(InputAction.MoveForward)) this.movement.add(this.forward);
+      if (inputManager.getAction(InputAction.MoveBackward)) this.movement.sub(this.forward);
+      if (inputManager.getAction(InputAction.MoveLeft)) this.lateralMovement.sub(this.right);
+      if (inputManager.getAction(InputAction.MoveRight)) this.lateralMovement.add(this.right);
+    }
 
     let speed = this.walkSpeed;
     if (this.stamina > 0 && inputManager.getAction(InputAction.Run)) {

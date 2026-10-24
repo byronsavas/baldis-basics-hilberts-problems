@@ -27,6 +27,7 @@ export class WarningScene implements GameScene {
 
     this.warningScreen = document.getElementById('warning-screen');
     this.warningScreen?.addEventListener('click', this.onScreenClick);
+    this.syncContinueLabel();
   }
 
   onExit() {
@@ -38,9 +39,18 @@ export class WarningScene implements GameScene {
   }
 
   update(_dt: number) {
+    this.syncContinueLabel();
     if (inputManager.anyKeyboardKeyDown()) {
       this.continueToMenu(false);
     }
+  }
+
+  private syncContinueLabel() {
+    const el = document.getElementById('warning-continue');
+    if (!el || this.continuing) return;
+    el.textContent = inputManager.usesTouchControls()
+      ? 'Tap to continue'
+      : 'Press any key to continue';
   }
 
   private continueToMenu(mute: boolean) {
