@@ -190,8 +190,15 @@ export class SFXPlayer {
     audio.play().catch(() => {});
   }
 
+  private static readonly correctAnswerClips = [
+    '/audio/baldi/notebookgreatjob1.m4a',
+    '/audio/baldi/notebookgreatjob2.m4a',
+    '/audio/baldi/notebookgreatjob3.m4a',
+  ];
+
   static playCorrectAnswer() {
-    this.playMathStinger('correctAnswerAudio', '/audio/LearnNew_Q1.wav', 0.5);
+    const path = this.correctAnswerClips[Math.floor(Math.random() * this.correctAnswerClips.length)];
+    this.playMathStinger('correctAnswerAudio', path, 0.9);
   }
 
   static playWrongAnswer() {
@@ -203,7 +210,7 @@ export class SFXPlayer {
   }
 
   static playBaldiIntro() {
-    this.play('/audio/baldi/hi-im-david-hilbert.wav', 0.7);
+    this.play('/audio/baldi/class-greeting.m4a', 0.9);
   }
 
   static playWin() {

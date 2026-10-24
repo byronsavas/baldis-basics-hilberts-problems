@@ -266,7 +266,10 @@ export class MathGameUI {
 
     if (answer === this.solution) {
       box?.classList.add('correct');
-      this.callbacks?.onCorrect();
+      // Great-job lines only for the arithmetic questions, not the final Hilbert problem
+      if (this.problem < 3) {
+        this.callbacks?.onCorrect();
+      }
     } else {
       box?.classList.add('incorrect');
       this.problemsWrong++;
