@@ -13,12 +13,19 @@ textarea {
 }
 
 html {
+  width: 100%;
   height: 100%;
   touch-action: none;
   overscroll-behavior: none;
 }
 
 body {
+  /* Fixed + 100% (not 100vw) — iOS 100vw is wider than the visible area and clips the right edge */
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
   overflow: hidden;
   background: #000;
   font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Chalkboard", "Marker Felt", "Segoe Print", sans-serif;
@@ -27,16 +34,13 @@ body {
   -webkit-tap-highlight-color: transparent;
   touch-action: none;
   overscroll-behavior: none;
-  height: 100%;
 }
 
 #game-canvas {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: block;
   touch-action: none;
   -webkit-user-drag: none;
@@ -44,11 +48,11 @@ body {
 
 #ui-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  overflow: hidden;
   pointer-events: none;
   z-index: 10;
 }
@@ -146,13 +150,15 @@ body {
 
 #menu-buttons {
   position: absolute;
-  bottom: 4%;
-  left: 0;
-  right: 0;
+  bottom: calc(4% + env(safe-area-inset-bottom, 0px));
+  left: env(safe-area-inset-left, 0px);
+  right: env(safe-area-inset-right, 0px);
   display: flex;
   justify-content: center;
-  gap: 20%;
-  padding: 0 8%;
+  flex-wrap: wrap;
+  gap: clamp(12px, 8vw, 20%);
+  padding: 0 max(8%, calc(8px + env(safe-area-inset-right, 0px))) 0 max(8%, calc(8px + env(safe-area-inset-left, 0px)));
+  box-sizing: border-box;
   z-index: 2;
 }
 
@@ -338,7 +344,7 @@ body {
 
 #think-pad {
   position: relative;
-  width: min(720px, 94vw);
+  width: min(720px, 94%);
   background: linear-gradient(180deg, #6ed46e 0%, #48b648 55%, #3a9a3a 100%);
   border-radius: 30px;
   padding: 18px 22px 26px;
@@ -664,7 +670,7 @@ body {
 }
 
 #game-over-image {
-  width: min(400px, 90vw);
+  width: min(400px, 90%);
   height: auto;
   aspect-ratio: 4 / 3;
   max-height: 70dvh;
@@ -697,9 +703,10 @@ body {
 #touch-look {
   position: absolute;
   top: calc(78px + env(safe-area-inset-top, 0px));
-  right: 0;
+  right: env(safe-area-inset-right, 0px);
   bottom: 0;
   width: 62%;
+  max-width: calc(100% - env(safe-area-inset-right, 0px));
   touch-action: none;
   z-index: 1;
   pointer-events: auto;
@@ -717,6 +724,18 @@ body {
   touch-action: none;
   z-index: 2;
   pointer-events: auto;
+}
+
+.touch-btn-sprint {
+  position: absolute;
+  left: calc(178px + env(safe-area-inset-left, 0px));
+  bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  width: 72px;
+  height: 72px;
+  z-index: 3;
+  pointer-events: auto;
+  background: rgba(40, 120, 40, 0.55);
+  border-color: #8f8;
 }
 
 #touch-joystick-knob {
@@ -791,7 +810,7 @@ body {
   left: 50%;
   bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
-  width: min(220px, 46vw);
+  width: min(220px, 46%);
   height: 84px;
   border-radius: 16px;
   border: 3px solid #ff0;
@@ -808,7 +827,8 @@ body {
 
 #touch-controls.jump-mode #touch-look,
 #touch-controls.jump-mode #touch-joystick,
-#touch-controls.jump-mode #touch-actions {
+#touch-controls.jump-mode #touch-actions,
+#touch-controls.jump-mode .touch-btn-sprint {
   display: none;
 }
 
@@ -857,18 +877,29 @@ body.touch-controls #hud-bottom-left {
 }
 
 body.touch-controls #stamina-container {
-  width: min(200px, 40vw);
+  width: min(200px, 40%);
 }
 
 @media (max-width: 600px) {
   .volume-row {
     flex-wrap: wrap;
-    max-width: 92vw;
+    max-width: 92%;
   }
 
   .volume-row label {
     flex: 1 1 100%;
     text-align: center;
+  }
+
+  #menu-buttons {
+    gap: 12px;
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  .menu-btn {
+    font-size: clamp(16px, 4.5vw, 28px);
+    padding: 8px 12px;
   }
 }
 
@@ -910,7 +941,7 @@ body.touch-controls #stamina-container {
 
 @media (max-height: 480px) {
   #think-pad {
-    width: min(640px, 98vw);
+    width: min(640px, 98%);
     padding: 8px 12px 10px;
     border-radius: 16px;
   }
@@ -990,6 +1021,14 @@ body.touch-controls #stamina-container {
     height: 52px;
     margin-left: -26px;
     margin-top: -26px;
+  }
+
+  .touch-btn-sprint {
+    left: calc(140px + env(safe-area-inset-left, 0px));
+    bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+    width: 60px;
+    height: 60px;
+    font-size: 11px;
   }
 
   .touch-btn:not(.touch-btn-pause) {

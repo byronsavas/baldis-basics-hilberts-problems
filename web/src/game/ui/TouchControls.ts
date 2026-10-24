@@ -2,7 +2,6 @@ import { inputManager, InputAction } from '../../engine/InputManager';
 
 /** Player multiplies look pixels by mouseSensitivity (0.002). This keeps a finger swipe close to mouse look. */
 const TOUCH_LOOK_SCALE = 1.6;
-const RUN_THRESHOLD = 0.7;
 
 const SLOT_ACTIONS = [InputAction.Slot0, InputAction.Slot1, InputAction.Slot2];
 
@@ -28,6 +27,7 @@ export class TouchControls {
     this.bindHold(document.getElementById('touch-interact')!, InputAction.Interact);
     this.bindHold(document.getElementById('touch-use')!, InputAction.UseItem);
     this.bindHold(document.getElementById('touch-lookbehind')!, InputAction.LookBehind);
+    this.bindHold(document.getElementById('touch-sprint')!, InputAction.Run);
     this.bindHold(document.getElementById('touch-pause')!, InputAction.Pause);
     this.bindHold(document.getElementById('touch-jump')!, InputAction.Jump);
 
@@ -131,12 +131,10 @@ export class TouchControls {
       dx = (dx / travel) * maxTravel;
       dy = (dy / travel) * maxTravel;
     }
-    const len = maxTravel > 0 ? Math.min(1, travel / maxTravel) : 0;
     const x = maxTravel > 0 ? dx / maxTravel : 0;
     const y = maxTravel > 0 ? -dy / maxTravel : 0;
     this.knobEl.style.transform = `translate(${dx}px, ${dy}px)`;
     inputManager.setMoveAxes(x, y);
-    inputManager.setVirtualAction(InputAction.Run, len >= RUN_THRESHOLD);
   }
 
   private onLookDown(e: PointerEvent) {
@@ -163,7 +161,6 @@ export class TouchControls {
     this.stickPointer = null;
     this.knobEl.style.transform = '';
     inputManager.setMoveAxes(0, 0);
-    inputManager.setVirtualAction(InputAction.Run, false);
   }
 
   private releaseStickAndLook() {
@@ -172,12 +169,14 @@ export class TouchControls {
     inputManager.setVirtualAction(InputAction.LookBehind, false);
     inputManager.setVirtualAction(InputAction.Interact, false);
     inputManager.setVirtualAction(InputAction.UseItem, false);
+    inputManager.setVirtualAction(InputAction.Run, false);
   }
 
   private releaseAll() {
     this.releaseStickAndLook();
     inputManager.setVirtualAction(InputAction.Jump, false);
     inputManager.setVirtualAction(InputAction.Pause, false);
+    inputManager.setVirtualAction(InputAction.Run, false);
   }
 
   private updateOrientation() {

@@ -25,14 +25,31 @@ const renderer = new THREE.WebGLRenderer({
 function viewportSize() {
   const vv = window.visualViewport;
   return {
-    width: Math.max(1, vv?.width ?? window.innerWidth),
-    height: Math.max(1, vv?.height ?? window.innerHeight),
+    width: Math.max(1, Math.round(vv?.width ?? window.innerWidth)),
+    height: Math.max(1, Math.round(vv?.height ?? window.innerHeight)),
+    left: Math.round(vv?.offsetLeft ?? 0),
+    top: Math.round(vv?.offsetTop ?? 0),
   };
 }
 
+const uiOverlay = document.getElementById('ui-overlay') as HTMLElement | null;
+
+function applyViewportBox(el: HTMLElement | null, left: number, top: number, width: number, height: number) {
+  if (!el) return;
+  el.style.left = `${left}px`;
+  el.style.top = `${top}px`;
+  el.style.width = `${width}px`;
+  el.style.height = `${height}px`;
+  el.style.right = 'auto';
+  el.style.bottom = 'auto';
+}
+
 function resizeRenderer() {
-  const { width, height } = viewportSize();
-  renderer.setSize(width, height);
+  const { width, height, left, top } = viewportSize();
+  // Keep canvas buffer + CSS box on the visual viewport (iOS URL bar / rubber-band offset)
+  renderer.setSize(width, height, false);
+  applyViewportBox(canvas, left, top, width, height);
+  applyViewportBox(uiOverlay, left, top, width, height);
   // Nearest-filter pixel art. Phones stay at 1× so a chase scene stays fill-rate cheap.
   const dprCap = inputManager.usesTouchControls() ? 1 : 1.25;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, dprCap));
