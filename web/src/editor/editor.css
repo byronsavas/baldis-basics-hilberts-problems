@@ -6,7 +6,7 @@ body {
   margin: 0;
   background: #1a1a1a;
   color: #eee;
-  font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif;
+  font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Chalkboard", "Marker Felt", "Segoe Print", sans-serif;
 }
 
 #editor-app {
