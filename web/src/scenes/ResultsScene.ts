@@ -1,6 +1,7 @@
 import type { GameScene } from '../engine/SceneManager';
 import { sceneManager } from '../engine/SceneManager';
 import { inputManager } from '../engine/InputManager';
+import { i18n } from '../engine/i18n';
 import { SFXPlayer } from '../game/MusicGenerator';
 
 export class ResultsScene implements GameScene {
@@ -11,6 +12,7 @@ export class ResultsScene implements GameScene {
     el.classList.add('active');
     inputManager.unlockPointer();
     SFXPlayer.playWin();
+    i18n.applyDom(el);
 
     const mode = localStorage.getItem('CurrentMode') || 'story';
     const scoreEl = document.getElementById('results-score')!;
@@ -18,9 +20,9 @@ export class ResultsScene implements GameScene {
     if (mode === 'endless') {
       const books = localStorage.getItem('CurrentBooks') || '0';
       const highBooks = localStorage.getItem('HighBooks') || '0';
-      scoreEl.textContent = `You studied ${books} of Hilbert's problems! (High score: ${highBooks})`;
+      scoreEl.textContent = i18n.t('results.endless', { count: books, high: highBooks });
     } else {
-      scoreEl.textContent = 'You studied all 23 of Hilbert\'s problems and escaped!';
+      scoreEl.textContent = i18n.t('results.story');
     }
 
     document.getElementById('btn-main-menu')!.onclick = () => {

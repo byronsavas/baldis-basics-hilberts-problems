@@ -148,6 +148,21 @@ body {
   pointer-events: none;
 }
 
+.menu-btn-translate {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  z-index: 3;
+  font-size: clamp(14px, 2.4vw, 22px);
+  padding: 8px 14px;
+  color: #1a4a8a;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.menu-btn-translate:hover {
+  color: #0d2f5c;
+}
+
 #menu-buttons {
   position: absolute;
   bottom: calc(4% + env(safe-area-inset-bottom, 0px));
@@ -266,6 +281,13 @@ body {
   font-size: 20px;
   color: #ff0;
   text-shadow: 1px 1px #000;
+}
+
+#stamina-label {
+  font-size: 12px;
+  color: #ff0;
+  text-shadow: 1px 1px #000;
+  margin-bottom: 2px;
 }
 
 #stamina-container {
@@ -871,13 +893,19 @@ body.touch-controls #hud .item-slot {
 }
 
 body.touch-controls #hud-bottom-left {
-  top: calc(38px + env(safe-area-inset-top, 0px));
+  /* Keep stamina off the joystick: sit under the notebook counter */
+  top: calc(42px + env(safe-area-inset-top, 0px));
   bottom: auto;
   left: calc(10px + env(safe-area-inset-left, 0px));
+  z-index: 5;
 }
 
 body.touch-controls #stamina-container {
-  width: min(200px, 40%);
+  /* Absolute parent has no width — % here collapsed the bar to 0 on iOS */
+  width: 160px;
+  height: 14px;
+  border-width: 2px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 @media (max-width: 600px) {
@@ -899,6 +927,11 @@ body.touch-controls #stamina-container {
 
   .menu-btn {
     font-size: clamp(16px, 4.5vw, 28px);
+    padding: 8px 12px;
+  }
+
+  .menu-btn-translate {
+    font-size: 14px;
     padding: 8px 12px;
   }
 }

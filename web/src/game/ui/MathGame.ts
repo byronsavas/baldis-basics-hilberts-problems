@@ -1,4 +1,5 @@
 import { inputManager } from '../../engine/InputManager';
+import { i18n } from '../../engine/i18n';
 
 export interface MathGameCallbacks {
   onCorrect(): void;
@@ -288,7 +289,7 @@ export class MathGameUI {
     this.answerEl.value = '';
     this.awaitingNext = false;
     (this.okBtn as HTMLButtonElement).disabled = false;
-    this.questionLabelEl.textContent = `SOLVE MATH Q${this.problem}:`;
+    this.questionLabelEl.textContent = i18n.t('math.solve', { n: this.problem });
     this.focusAnswerInput();
 
     if (this.problem <= 2) {

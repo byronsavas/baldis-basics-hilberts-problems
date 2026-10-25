@@ -1,4 +1,5 @@
 import { inputManager } from '../../engine/InputManager';
+import { i18n } from '../../engine/i18n';
 
 export interface JumpRopeCallbacks {
   getJumpHeight(): number;
@@ -36,11 +37,12 @@ export class JumpRopeUI {
     this.maxJumpThisSwing = 0;
     this.active = true;
     this.el.classList.add('active');
+    i18n.applyDom(this.el);
     const prompt = document.getElementById('jump-rope-prompt');
     if (prompt) {
       prompt.textContent = inputManager.usesTouchControls()
-        ? 'Tap to jump!'
-        : 'Press the space bar to jump!';
+        ? i18n.t('jump.promptTouch')
+        : i18n.t('jump.prompt');
     }
     this.updateCountDisplay();
   }

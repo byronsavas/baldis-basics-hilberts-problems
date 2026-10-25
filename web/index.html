@@ -14,13 +14,13 @@
       <!-- Warning screen -->
       <div id="warning-screen" class="screen active">
         <div class="warning-content">
-          <h1>WARNING</h1>
-          <p>This game has some loud sounds. Play at your own risk.</p>
-          <p id="warning-continue" class="blink warning-continue" role="button" tabindex="0">
+          <h1 data-i18n="warning.title">WARNING</h1>
+          <p data-i18n="warning.body">This game has some loud sounds. Play at your own risk.</p>
+          <p id="warning-continue" class="blink warning-continue" role="button" tabindex="0" data-i18n="warning.continue">
             Press any key to continue
           </p>
         </div>
-        <button id="btn-sound-off" class="warning-sound-off" type="button">
+        <button id="btn-sound-off" class="warning-sound-off" type="button" data-i18n="warning.mute">
           Start with sound muted
         </button>
       </div>
@@ -28,10 +28,13 @@
       <!-- Main menu -->
       <div id="main-menu" class="screen">
         <img id="menu-bg" src="./menu-bg.jpg" alt="" />
+        <button id="btn-translate" class="menu-btn menu-btn-translate" type="button" data-i18n="btn.translate">
+          Translate
+        </button>
         <div id="menu-buttons">
-          <button id="btn-story" class="menu-btn menu-btn-start">START</button>
-          <button id="btn-endless" class="menu-btn menu-btn-endless">ENDLESS</button>
-          <button id="btn-menu-right" class="menu-btn menu-btn-menu">MENU</button>
+          <button id="btn-story" class="menu-btn menu-btn-start" data-i18n="btn.start">START</button>
+          <button id="btn-endless" class="menu-btn menu-btn-endless" data-i18n="btn.endless">ENDLESS</button>
+          <button id="btn-menu-right" class="menu-btn menu-btn-menu" data-i18n="btn.menu">MENU</button>
         </div>
       </div>
 
@@ -49,12 +52,13 @@
           <div id="item-name"></div>
         </div>
         <div id="hud-bottom-left">
+          <div id="stamina-label" data-i18n="hud.stamina">Stamina</div>
           <div id="stamina-container">
             <div id="stamina-bar"></div>
           </div>
         </div>
         <div id="reticle">+</div>
-        <div id="warning-text" class="hidden">You're running low on stamina!</div>
+        <div id="warning-text" class="hidden" data-i18n="hud.staminaLow">You're running low on stamina!</div>
       </div>
 
       <!-- Math game overlay (You Can Think Pad) -->
@@ -100,7 +104,7 @@
                 <button type="button" class="keypad-key" data-key="0">0</button>
                 <button type="button" class="keypad-key" data-key="-">-</button>
               </div>
-              <button type="button" id="math-ok">OK!</button>
+              <button type="button" id="math-ok" data-i18n="math.ok">OK!</button>
             </div>
           </div>
         </div>
@@ -109,8 +113,8 @@
       <!-- Jump rope minigame (Baldi-style centered overlay) -->
       <div id="jump-rope" class="screen">
         <div id="jump-rope-content">
-          <div id="jump-rope-title">Let's play some infinite jump rope!</div>
-          <div id="jump-rope-prompt">Press the space bar to jump!</div>
+          <div id="jump-rope-title" data-i18n="jump.title">Let's play some infinite jump rope!</div>
+          <div id="jump-rope-prompt" data-i18n="jump.prompt">Press the space bar to jump!</div>
           <div id="jump-count">0</div>
         </div>
       </div>
@@ -118,28 +122,28 @@
       <!-- Pause menu -->
       <div id="pause-menu" class="screen">
         <div class="menu-content">
-          <h2>PAUSED</h2>
-          <button id="btn-continue">Continue</button>
-          <button id="btn-options">Options</button>
-          <button id="btn-quit">Quit to Menu</button>
+          <h2 data-i18n="pause.title">PAUSED</h2>
+          <button id="btn-continue" data-i18n="pause.continue">Continue</button>
+          <button id="btn-options" data-i18n="pause.options">Options</button>
+          <button id="btn-quit" data-i18n="pause.quit">Quit to Menu</button>
         </div>
       </div>
 
       <!-- Options menu -->
       <div id="options-menu" class="screen">
         <div class="menu-content">
-          <h2>OPTIONS</h2>
+          <h2 data-i18n="options.title">OPTIONS</h2>
           <div class="volume-row">
-            <label for="music-volume">Music Volume</label>
+            <label for="music-volume" data-i18n="options.music">Music Volume</label>
             <input id="music-volume" type="range" min="0" max="100" />
             <span id="music-volume-value">50%</span>
           </div>
           <div class="volume-row">
-            <label for="sfx-volume">Sound Effects Volume</label>
+            <label for="sfx-volume" data-i18n="options.sfx">Sound Effects Volume</label>
             <input id="sfx-volume" type="range" min="0" max="100" />
             <span id="sfx-volume-value">50%</span>
           </div>
-          <button id="btn-options-back">Back</button>
+          <button id="btn-options-back" data-i18n="options.back">Back</button>
         </div>
       </div>
 
@@ -156,9 +160,9 @@
       <!-- Results / You Won -->
       <div id="results-screen" class="screen">
         <div class="menu-content">
-          <h1>Congratulations! You won!</h1>
+          <h1 data-i18n="results.title">Congratulations! You won!</h1>
           <p id="results-score"></p>
-          <button id="btn-main-menu">Main Menu</button>
+          <button id="btn-main-menu" data-i18n="results.menu">Main Menu</button>
         </div>
       </div>
 
@@ -167,16 +171,16 @@
         <div id="touch-joystick" aria-label="Move">
           <div id="touch-joystick-knob"></div>
         </div>
-        <button type="button" id="touch-sprint" class="touch-btn touch-btn-sprint">Sprint</button>
+        <button type="button" id="touch-sprint" class="touch-btn touch-btn-sprint" data-i18n="touch.sprint">Sprint</button>
         <div id="touch-actions">
-          <button type="button" id="touch-lookbehind" class="touch-btn touch-btn-behind">Behind</button>
-          <button type="button" id="touch-interact" class="touch-btn">Interact</button>
-          <button type="button" id="touch-use" class="touch-btn">Use</button>
+          <button type="button" id="touch-lookbehind" class="touch-btn touch-btn-behind" data-i18n="touch.behind">Behind</button>
+          <button type="button" id="touch-interact" class="touch-btn" data-i18n="touch.interact">Interact</button>
+          <button type="button" id="touch-use" class="touch-btn" data-i18n="touch.use">Use</button>
         </div>
-        <button type="button" id="touch-pause" class="touch-btn touch-btn-pause">Pause</button>
-        <button type="button" id="touch-jump">JUMP</button>
+        <button type="button" id="touch-pause" class="touch-btn touch-btn-pause" data-i18n="touch.pause">Pause</button>
+        <button type="button" id="touch-jump" data-i18n="touch.jump">JUMP</button>
         <div id="touch-rotate">
-          <p>Rotate your device</p>
+          <p data-i18n="touch.rotate">Rotate your device</p>
         </div>
       </div>
     </div>

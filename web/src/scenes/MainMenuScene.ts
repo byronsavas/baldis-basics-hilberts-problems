@@ -2,6 +2,7 @@ import { sceneManager, type GameScene } from '../engine/SceneManager';
 import { inputManager } from '../engine/InputManager';
 import { assetUrl } from '../engine/assetUrl';
 import { audioSettings } from '../engine/AudioSettings';
+import { i18n } from '../engine/i18n';
 import { optionsMenuUI } from '../game/ui/OptionsMenu';
 import { SFXPlayer } from '../game/MusicGenerator';
 
@@ -55,6 +56,9 @@ export class MainMenuScene implements GameScene {
     };
     document.getElementById('btn-menu-right')!.onclick = () => {
       optionsMenuUI.show();
+    };
+    document.getElementById('btn-translate')!.onclick = () => {
+      i18n.cycleLocale();
     };
     optionsMenuUI.onBack = () => {
       optionsMenuUI.hide();

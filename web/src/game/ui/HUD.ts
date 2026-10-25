@@ -1,4 +1,5 @@
 import { TOTAL_NOTEBOOKS } from '../constants';
+import { i18n } from '../../engine/i18n';
 
 const ITEM_NAMES = [
   '',
@@ -42,9 +43,9 @@ export class HUD {
 
   updateNotebooks(count: number, mode: string) {
     if (mode === 'endless') {
-      this.notebookEl.textContent = `Notebooks: ${count}`;
+      this.notebookEl.textContent = i18n.t('hud.notebooksEndless', { count });
     } else {
-      this.notebookEl.textContent = `Notebooks: ${count}/${TOTAL_NOTEBOOKS}`;
+      this.notebookEl.textContent = i18n.t('hud.notebooks', { count, total: TOTAL_NOTEBOOKS });
     }
   }
 

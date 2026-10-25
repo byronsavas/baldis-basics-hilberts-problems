@@ -3,6 +3,7 @@ import { gameLoop } from './engine/GameLoop';
 import { inputManager } from './engine/InputManager';
 import { sceneManager } from './engine/SceneManager';
 import { assetUrl } from './engine/assetUrl';
+import { i18n } from './engine/i18n';
 import { WarningScene } from './scenes/WarningScene';
 import { MainMenuScene } from './scenes/MainMenuScene';
 import { SchoolScene } from './scenes/SchoolScene';
@@ -10,6 +11,8 @@ import { GameOverScene } from './scenes/GameOverScene';
 import { ResultsScene } from './scenes/ResultsScene';
 
 const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+
+i18n.applyDom();
 
 document.documentElement.style.setProperty(
   '--portrait-texture',
