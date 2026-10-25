@@ -1,4 +1,4 @@
-export type Locale = 'en' | 'es';
+export type Locale = 'en' | 'es' | 'zh';
 
 const STORAGE_KEY = 'GameLocale';
 
@@ -81,13 +81,51 @@ const STRINGS: Record<Locale, StringTable> = {
     'touch.jump': 'SALTAR',
     'touch.rotate': 'Gira tu dispositivo',
   },
+  zh: {
+    'btn.translate': '翻译',
+    'btn.start': '开始',
+    'btn.endless': '无尽模式',
+    'btn.menu': '菜单',
+    'warning.title': '警告',
+    'warning.body': '本游戏包含较大音量。请自行承担风险。',
+    'warning.continue': '按任意键继续',
+    'warning.mute': '静音开始',
+    'hud.notebooks': '笔记本：{count}/{total}',
+    'hud.notebooksEndless': '笔记本：{count}',
+    'hud.stamina': '体力',
+    'hud.staminaLow': '体力不足！',
+    'math.solve': '解答数学题 Q{n}：',
+    'math.ok': '确定！',
+    'jump.title': '来玩无限跳绳吧！',
+    'jump.prompt': '按空格键跳跃！',
+    'jump.promptTouch': '点击“跳跃”来跳！',
+    'pause.title': '已暂停',
+    'pause.continue': '继续',
+    'pause.options': '选项',
+    'pause.quit': '返回主菜单',
+    'options.title': '选项',
+    'options.music': '音乐音量',
+    'options.sfx': '音效音量',
+    'options.back': '返回',
+    'results.title': '恭喜！你赢了！',
+    'results.menu': '主菜单',
+    'results.story': '你学完了希尔伯特的全部 23 个问题并成功逃脱！',
+    'results.endless': '你学习了 {count} 个希尔伯特问题！（最高分：{high}）',
+    'touch.sprint': '冲刺',
+    'touch.behind': '回头',
+    'touch.interact': '互动',
+    'touch.use': '使用',
+    'touch.pause': '暂停',
+    'touch.jump': '跳跃',
+    'touch.rotate': '请旋转设备',
+  },
 };
 
-const LOCALES: Locale[] = ['en', 'es'];
+const LOCALES: Locale[] = ['en', 'es', 'zh'];
 
 function readStoredLocale(): Locale {
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw === 'en' || raw === 'es') return raw;
+  if (raw === 'en' || raw === 'es' || raw === 'zh') return raw;
   return 'en';
 }
 
